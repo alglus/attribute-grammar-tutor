@@ -1,0 +1,139 @@
+@font-face {
+    /* Font author: Ryoichi Tsunekawa
+       https://github.com/dharmatype/Sometype-Mono
+     */
+    font-family: sometypeMono;
+    src: url(../fonts/sometype-mono.regular.ttf);
+}
+
+body {
+    min-width: 470px;
+    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+footer {
+    flex: 1;
+    position: relative;
+    min-height: 6.5rem;
+}
+
+footer div {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    margin-top: 3rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+#grammarErrorMessages {
+    display: none;
+}
+
+
+#dependenciesExercise {
+    display: none;
+}
+
+#dependencyGraphsRow {
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.dependenciesGraphCard .card {
+    position: relative;
+    width: 402px;
+}
+
+.dependenciesGraphCardHeader {
+    font-family: sometypeMono, monospace;
+    height: 3rem;
+    display: table;
+    align-items: center;
+}
+
+.dependenciesGraphCardTitle {
+    margin: 0;
+    vertical-align: middle;
+    display: table-cell;
+}
+
+.showGraphErrorsBtn {
+    display: none;
+    float: right;
+}
+
+.graphCorrectCheck {
+    float: right;
+    margin-top: 6px;
+    fill: #198754;
+}
+
+
+.graphErrors {
+    display: none;
+    position: absolute;
+    z-index: 5;
+
+    border-radius: 0.5rem;
+    background: #f8d7da;
+    opacity: 90%;
+
+    width: 80%;
+    max-height: 280px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: auto;
+
+    font-size: 0.85rem;
+    color: #842029;
+}
+
+.graphErrors ul {
+    margin: 0;
+    padding: 0.75rem 1rem 0.75rem 2rem;
+}
+
+.graphErrors li {
+    line-height: 1.5rem;
+}
+
+.graphErrors li:not(:last-child) {
+    margin-bottom: 0.5rem;
+}
+
+
+.dependenciesRecenterBtn {
+    display: flex;
+    height: 100%;
+}
+
+.dependenciesRecenterBtn > svg {
+    display: block;
+    -webkit-transition: fill 0.1s ease-out;
+    -moz-transition: fill 0.1s ease-out;
+    -o-transition: fill 0.1s ease-out;
+    transition: fill 0.1s ease-out;
+    fill: #6c757d;
+}
+
+.dependenciesRecenterBtn:hover > svg {
+    fill: #fff;
+}
+
+
+/* JointJS */
+
+.joint-tool[data-tool-name="connect"]:not(:hover) {
+    opacity: 0;
+}
+
+.joint-tool[data-tool-name="button"] circle {
+    fill: #333;
+    opacity: 0.5;
+}
