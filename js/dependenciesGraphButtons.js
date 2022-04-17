@@ -215,6 +215,7 @@ function checkAll(grammar) {
 function check(graphIndex, grammar) {
     const graphErrors = [];
     resetErrors(graphIndex);
+    hideGraphCorrectIcon(graphIndex);
 
     checkGraphCorrectness(graphIndex, grammar, graphErrors);
     addGraphErrors(graphIndex, graphErrors);
