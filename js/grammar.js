@@ -528,11 +528,11 @@ class Attribute {
  * - index of the target attribute, inside the indexed map of the corresponding symbol
  *
  * If an attribute 'z' would have a dependency with an attribute 'c' of the non-terminal 'T' in this production rule:
- * S -> P T a  :  ['a', 'b', 'c', 'd']
+ * S -> T a  :  ['a', 'b', 'c', 'd']
  * Then the stored values in the dependency object ('z' -> 'c') would be:
  * - toAttributeName = 'c'
- * - toSymbolIndex = 2
- * - toAttributeIndexInsideSymbol = 3
+ * - toSymbolIndex = 1
+ * - toAttributeIndexInsideSymbol = 2
  */
 class Dependency {
     toAttributeName;

@@ -156,7 +156,7 @@ export class DependenciesGraph {
             },
             'cell:mousewheel': function (cellView, event, x, y, delta) {
                 event.preventDefault(); // stop the page from scrolling, when over some graph node
-                
+
                 const model = cellView.model;
 
                 if (model.isElement()) {
