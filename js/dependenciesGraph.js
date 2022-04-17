@@ -156,8 +156,15 @@ export class DependenciesGraph {
             },
             'cell:mousewheel': function (cellView, event, x, y, delta) {
                 event.preventDefault(); // stop the page from scrolling, when over some graph node
+                
                 const model = cellView.model;
+
                 if (model.isElement()) {
+
+                    // The name of an element is being changed, so the previous check and warnings
+                    // may no longer be valid. Therefore, we need to reset them.
+                    resetErrors(productionIndex);
+
                     if (model.isSymbol() || model.isAttribute()) {
                         model.scrollName(delta);
                     }
