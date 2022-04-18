@@ -1,9 +1,15 @@
 import {DependenciesGraph, MAX_SCALE, MIN_SCALE} from './dependenciesGraph.js';
 import {arrayIsEmpty, chooseOneAtRandom, emptyArray, ERROR} from './utils.js';
 import {
+    ATTRIBUTE_HEIGHT,
+    ATTRIBUTE_WIDTH,
     defineJointAttrsysObjects,
     findEmptySpotForNewAttribute,
     HIGHLIGHT_AREA,
+    MAX_ATTRIBUTES_IN_ONE_ROW, PAPER_MARGIN_X, PAPER_MARGIN_Y,
+    SPACE_BETWEEN_SYMBOL_AND_ATTRIBUTES,
+    SPACING_BETWEEN_ATTRIBUTES_X, SPACING_BETWEEN_CONTAINERS,
+    SYMBOL_HEIGHT,
     SYMBOL_WIDTH
 } from './joint.attrsys.js';
 
@@ -109,6 +115,7 @@ function setFunctionForDrawTreeButton(i, grammar) {
     drawTreeButton.click(function () {
         clearGraph(i);
         drawSyntaxTree(i, grammar);
+        recenterIfGraphOutOfFrame(i);
     });
 }
 
@@ -117,24 +124,14 @@ function setFunctionForShowSolutionButton(i, grammar) {
     showSolutionButton.click(function () {
         clearGraph(i);
         showSolution(i, grammar)
+        recenterIfGraphOutOfFrame(i);
     });
 }
 
 function setFunctionForRecenterButton(i) {
-
-    const recenterButton = $(`.dependenciesRecenterBtn[data-index=${i}]`);
-
-    recenterButton.click(function () {
-
-        const paper = DependenciesGraph.allGraphs[i].paper;
-
-        paper.scaleContentToFit({
-            padding: 20,
-            minxScaleX: MIN_SCALE, minScaleY: MIN_SCALE,
-            maxScaleX: MAX_SCALE, maxScaleY: MAX_SCALE,
-        });
-    });
+    $(`.dependenciesRecenterBtn[data-index=${i}]`).click(() => recenterGraph(i));
 }
+
 
 function setFunctionForShowErrorsButton(i) {
     $(`.showGraphErrorsBtn[data-index=${i}]`).click(() => toggleGraphErrorsVisibility(i));
@@ -291,9 +288,18 @@ function checkGraphCorrectness(graphIndex, grammar, graphErrors) {
     }
 
     const rootNodes = dependencyGraph.getRoots();
+
+    if (rootNodes.length === 0) {
+
+        graphErrors.push('There is no root in your graph. The root should have no incoming edges. Check that you have no cycles.');
+        return;
+    }
+
     if (rootNodes.length > 1) {
+
         graphErrors.push(`There are ${rootNodes.length} disconnected subgraphs.` +
             ' The syntax tree must be one connected component, with one root.');
+
         rootNodes.forEach(rootNode => {
             dependencyGraph.highlightElement(rootNode, HIGHLIGHT_AREA.body);
         });
@@ -326,7 +332,7 @@ function checkGraphCorrectness(graphIndex, grammar, graphErrors) {
             return;
         }
 
-        if (checkSymbolName(i, allSymbolNodesSortedByX, graphErrors,
+        if (checkSymbolNameAndOutgoingLinks(i, allSymbolNodesSortedByX, graphErrors,
             productionRule, expectedNumberOfChildren, dependencyGraph) === ERROR) return;
 
         if (checkAttributes(i, allSymbolNodesSortedByX, graphErrors,
@@ -335,23 +341,25 @@ function checkGraphCorrectness(graphIndex, grammar, graphErrors) {
 }
 
 
-function rootIsPositionedBelowChildren(symbolIndex, rootNode, allSymbolNodesInCorrectOrder) {
+function rootIsPositionedBelowChildren(symbolIndex, rootNode, allSymbolNodesSortedByX) {
     if (symbolIndex === 0) // the root node itself
         return false;
 
     const rootY = rootNode.position().y;
-    const childY = allSymbolNodesInCorrectOrder[symbolIndex].position().y;
+    const childY = allSymbolNodesSortedByX[symbolIndex].position().y;
 
     return childY < rootY;
 }
 
 
-function checkSymbolName(symbolIndex, allSymbolNodes, graphErrors, productionRule, expectedNumberOfChildren, dependencyGraph) {
+function checkSymbolNameAndOutgoingLinks(symbolIndex, allSymbolNodes, graphErrors, productionRule, expectedNumberOfChildren, dependencyGraph) {
+
     const expectedName = productionRule.symbolNames[symbolIndex];
     const symbolNode = allSymbolNodes[symbolIndex];
     const actualName = symbolNode.getName();
 
     if (actualName !== expectedName) {
+
         let childrenPositioningExplanation = '';
 
         // Add the explanation to a child node, if there are two or more children.
@@ -359,10 +367,31 @@ function checkSymbolName(symbolIndex, allSymbolNodes, graphErrors, productionRul
             childrenPositioningExplanation = ' Remember, that the child nodes are indexed 1..n, from left to right.'
                 + ' So their positioning along the x-axis in the graph should reflect this indexing convention.';
         }
+
         graphErrors.push(`Node[${symbolIndex}] in the syntax tree should be named "${expectedName}",`
             + ` whereas it is now named "${actualName}". ${childrenPositioningExplanation}`);
+
         dependencyGraph.highlightElement(symbolNode, HIGHLIGHT_AREA.label);
+
         return ERROR;
+    }
+
+
+    // Only check, that all children have no edges.
+    if (symbolIndex > 0) {
+
+        const links = dependencyGraph.graph.getConnectedLinks(symbolNode, {outbound: true});
+
+        if (links.length > 0) {
+
+            graphErrors.push(`Node[${symbolIndex}] (symbol "${actualName}") should have no outgoing edges.`);
+
+            links.forEach(link => {
+                dependencyGraph.highlightElement(link, HIGHLIGHT_AREA.default)
+            });
+
+            return ERROR;
+        }
     }
 }
 
@@ -427,13 +456,11 @@ function checkAttributeLinks(symbolIndex, actualAttributeNode, expectedAttribute
 
         const actualTargetAttributeNode = jointGraph.getCell(actualLinkTargetId);
         const actualTargetAttributeNodeName = actualTargetAttributeNode.getName();
-        // const actualTargetAttributeSymbolNode = actualTargetAttributeNode.getSymbolNode();
         const actualTargetSymbolNodeName = actualTargetAttributeNode.getSymbolNode().getName();
 
         if (expectedOutgoingDependencies.has(actualTargetAttributeNodeName)) {
             const expectedOutgoingDependency = expectedOutgoingDependencies.get(actualTargetAttributeNodeName);
             const expectedTargetAttributeName = expectedOutgoingDependency.toAttributeName;
-            // const expectedTargetAttributeSymbol = productionRule.symbols[expectedOutgoingDependency.toSymbolIndex];
             const expectedTargetSymbolName = productionRule.symbols[expectedOutgoingDependency.toSymbolIndex].name;
 
             if (actualTargetSymbolNodeName === expectedTargetSymbolName) {
@@ -458,22 +485,24 @@ function checkAttributeLinks(symbolIndex, actualAttributeNode, expectedAttribute
 }
 
 function ohNoes(graphErrors) {
+
     const errorMessages = [
-        'Wait, what?...',
-        'Did you even start?',
-        'Please, try to make an effort.',
-        'Come on, really?',
-        'Is that the best you can do?',
-        // '73;32;104;111;112;101;32;121;111;117;32;106;117;115;116;32;109;105;115;99;108;105;99;107;101;100;32;97;110;100;32;121;111;117;39;114;101;32;110;111;116;32;97;99;116;117;97;108;108;121;32;100;111;110;101;46',
+        [68, 105, 100, 32, 121, 111, 117, 32, 101, 118, 101, 110, 32, 115, 116, 97, 114, 116, 63],
+        [80, 108, 101, 97, 115, 101, 44, 32, 116, 114, 121, 32, 116, 111, 32, 109, 97, 107, 101, 32, 97, 110, 32, 101, 102, 102, 111, 114, 116, 46],
+        [67, 111, 109, 101, 32, 111, 110, 44, 32, 114, 101, 97, 108, 108, 121, 63, 32, 87, 104, 97, 116, 32, 105, 115, 32, 116, 104, 101, 114, 101, 32, 116, 111, 32, 99, 104, 101, 99, 107, 63],
+        [73, 115, 32, 116, 104, 97, 116, 32, 116, 104, 101, 32, 98, 101, 115, 116, 32, 121, 111, 117, 32, 99, 97, 110, 32, 100, 111, 63],
+        [73, 32, 104, 111, 112, 101, 32, 121, 111, 117, 32, 106, 117, 115, 116, 32, 109, 105, 115, 99, 108, 105, 99, 107, 101, 100, 32, 97, 110, 100, 32, 121, 111, 117, 39, 114, 101, 32, 110, 111, 116, 32, 97, 99, 116, 117, 97, 108, 108, 121, 32, 100, 111, 110, 101, 46],
+        [73, 32, 114, 101, 102, 117, 115, 101, 32, 116, 111, 32, 99, 104, 101, 99, 107, 32, 116, 104, 105, 115, 44, 32, 97, 115, 32, 121, 111, 117, 32, 99, 108, 101, 97, 114, 108, 121, 32, 106, 117, 115, 116, 32, 103, 97, 118, 101, 32, 117, 112, 46],
     ];
-    // graphErrors.push(String.fromCharCode(...chooseOneAtRandom(errorMessages).split(';')));
-    graphErrors.push(chooseOneAtRandom(errorMessages));
+
+    graphErrors.push(String.fromCharCode(...chooseOneAtRandom(errorMessages)));
 }
 
 
 function showAllSolutions(grammar) {
     for (let i = 0; i < DependenciesGraph.allGraphs.length; i++) {
         showSolution(i, grammar);
+        recenterIfGraphOutOfFrame(i);
     }
 }
 
@@ -490,10 +519,12 @@ function showSolution(graphIndex, grammar) {
 function drawAllSyntaxTrees(grammar) {
     for (let i = 0; i < DependenciesGraph.allGraphs.length; i++) {
         drawSyntaxTree(i, grammar);
+        recenterIfGraphOutOfFrame(i);
     }
 }
 
 function drawSyntaxTree(graphIndex, grammar) {
+
     const paper = DependenciesGraph.allGraphs[graphIndex].paper;
     const graph = DependenciesGraph.allGraphs[graphIndex].graph;
 
@@ -502,7 +533,8 @@ function drawSyntaxTree(graphIndex, grammar) {
     const symbolNodes = [];
 
     for (let i = 0; i < productionRuleSymbolNames.length; i++) {
-        const {x, y} = defineNodePosition(i, productionRuleSymbolNames, paper);
+
+        const {x, y} = defineNodePosition(i, graphIndex, grammar, paper);
 
         symbolNodes[i] = joint.shapes.attrsys.Symbol.create(x, y, productionRuleSymbolNames, paper, graph, i);
 
@@ -512,30 +544,165 @@ function drawSyntaxTree(graphIndex, grammar) {
     return symbolNodes;
 }
 
-function defineNodePosition(i, productionRuleSymbolNames, paper) {
+
+function defineNodePosition(symbolIndex, graphIndex, grammar, paper) {
+
     const paperWidth = paper.options.width;
     const paperHeight = paper.options.height;
+
+    const productionRuleSymbols = grammar.productionRules[graphIndex].symbols;
 
     const centralPositionX = paperWidth / 2 - SYMBOL_WIDTH / 2
 
     // Root node.
-    if (i === 0) {
-        return {x: centralPositionX, y: 50};
+    if (symbolIndex === 0) {
+
+        return {
+            x: centralPositionX,
+            y: PAPER_MARGIN_Y
+        };
     }
+
+
+    const childrenY = paperHeight - PAPER_MARGIN_Y - getMaxContainerHeight(productionRuleSymbols);
 
     // Only one child.
-    if (productionRuleSymbolNames.length === 2) {
-        return {x: centralPositionX, y: 250}; // TODO: calculate y
+    if (productionRuleSymbols.length === 2) {
+
+        return {
+            x: centralPositionX,
+            y: childrenY
+        };
     }
 
+
     // More than one child.
-    return {x: 30 + (i - 1) * 200, y: 250}; // TODO: calculate x and y
+    const firstChildX = paperWidth / 2 - getTotalChildrenWidth(productionRuleSymbols) / 2;
+    const widthOfSiblingsBefore = getWidthOfSiblingsBefore(symbolIndex, productionRuleSymbols);
+
+    return {
+        x: PAPER_MARGIN_X + firstChildX + widthOfSiblingsBefore,
+        y: childrenY
+    };
+}
+
+
+function getTotalChildrenWidth(symbols) {
+
+    let totalChildrenWidth = 0;
+
+    // Loop through all children in the syntax tree (leave out index=0, which is the root).
+    for (let i = 1; i < symbols.length; i++) {
+
+        totalChildrenWidth += getContainerWidth(i, symbols);
+        totalChildrenWidth += SPACING_BETWEEN_CONTAINERS;
+    }
+
+    return totalChildrenWidth;
+}
+
+
+function getWidthOfSiblingsBefore(symbolIndex, symbols) {
+
+    let width = 0;
+
+    // Loop through all children before the given child (leave out index=0, which is the root).
+    for (let i = 1; i < symbolIndex; i++) {
+
+        width += getContainerWidth(i, symbols);
+        width += SPACING_BETWEEN_CONTAINERS;
+    }
+
+    return width;
+}
+
+
+function getContainerWidth(symbolIndex, symbols) {
+
+    const numberOfAttributes = symbols[symbolIndex].attributes.length;
+
+    if (numberOfAttributes === 0)
+        return SYMBOL_WIDTH;
+
+
+    const numberOfAttributeColumns = getNumberOfAttributeColumns(numberOfAttributes);
+    const attributesWidth = numberOfAttributeColumns * ATTRIBUTE_WIDTH + (numberOfAttributeColumns - 1) * SPACING_BETWEEN_ATTRIBUTES_X;
+
+    return SYMBOL_WIDTH + SPACE_BETWEEN_SYMBOL_AND_ATTRIBUTES + attributesWidth;
+}
+
+
+function getNumberOfAttributeColumns(numberOfAttributes) {
+
+    if (numberOfAttributes >= MAX_ATTRIBUTES_IN_ONE_ROW)
+        return MAX_ATTRIBUTES_IN_ONE_ROW;
+
+    return (numberOfAttributes % MAX_ATTRIBUTES_IN_ONE_ROW) + 1;
+}
+
+
+function getMaxContainerHeight(symbols) {
+
+    let maxContainerHeight = 0;
+
+    // Loop through all children in the syntax tree (leave out index=0, which is the root).
+    for (let i = 1; i < symbols.length; i++) {
+
+        const containerHeight = getContainerHeight(i, symbols);
+
+        maxContainerHeight = Math.max(containerHeight, maxContainerHeight);
+    }
+
+    return maxContainerHeight;
+}
+
+
+function getContainerHeight(symbolIndex, symbols) {
+
+    const numberOfAttributes = symbols[symbolIndex].attributes.length;
+    const numberOfAttributeRows = Math.ceil(numberOfAttributes / MAX_ATTRIBUTES_IN_ONE_ROW);
+
+    const attributeHeight = numberOfAttributeRows * ATTRIBUTE_HEIGHT;
+
+    // The attribute height can be zero, if there are no attributes, so we need to at least count the symbol height.
+    return Math.max(SYMBOL_HEIGHT, attributeHeight);
+}
+
+
+function recenterIfGraphOutOfFrame(graphIndex) {
+
+    const paper = DependenciesGraph.allGraphs[graphIndex].paper;
+    const contentArea = paper.getContentArea();
+
+    const availableWidth = paper.options.width;
+    const availableHeight = paper.options.height;
+
+    if (contentArea.width > availableWidth || contentArea.height > availableHeight) {
+
+        recenterGraph(graphIndex);
+    }
+}
+
+
+function recenterGraph(graphIndex) {
+
+    const paper = DependenciesGraph.allGraphs[graphIndex].paper;
+
+    paper.scaleContentToFit({
+        padding: SYMBOL_WIDTH,
+        minxScaleX: MIN_SCALE, minScaleY: MIN_SCALE,
+        maxScaleX: MAX_SCALE, maxScaleY: MAX_SCALE,
+    });
 }
 
 
 function linkChildrenWithRoot(i, symbolNodes, graph) {
-    if (i > 0) { // Only start linking, if it is a child.
+
+    // Only start linking, if it is a child.
+    if (i > 0) {
+
         const link = new joint.shapes.attrsys.SymbolLink();
+
         link.source(symbolNodes[0]);
         link.target(symbolNodes[i]);
         link.addTo(graph);
@@ -544,11 +711,14 @@ function linkChildrenWithRoot(i, symbolNodes, graph) {
 
 
 function addAttributesToSyntaxTree(graphIndex, grammar, symbolNodes, graph, paper) {
+
     const attributeNodes = [];
+
     const allAttributeNames = grammar.allAttributeNamesArray;
     const productionRule = grammar.productionRules[graphIndex];
 
     for (let i = 0; i < symbolNodes.length; i++) {
+
         const symbolAttributeNodes = [];
         const symbolAttributes = productionRule.symbols[i].attributes;
         const symbolNode = symbolNodes[i];
@@ -556,11 +726,12 @@ function addAttributesToSyntaxTree(graphIndex, grammar, symbolNodes, graph, pape
         const container = symbolNode.getContainer();
 
         for (let j = 0; j < symbolAttributes.length; j++) {
+
             const attributeName = symbolAttributes.getAt(j).name;
             const emptySpot = findEmptySpotForNewAttribute(symbolPosition, container, graph);
 
-            const attributeNode = joint.shapes.attrsys.Attribute.create(
-                emptySpot.x, emptySpot.y, container, allAttributeNames, paper, graph, attributeName);
+            const attributeNode = joint.shapes.attrsys.Attribute
+                .create(emptySpot.x, emptySpot.y, container, allAttributeNames, paper, graph, attributeName);
 
             symbolAttributeNodes.push(attributeNode);
         }
@@ -573,19 +744,24 @@ function addAttributesToSyntaxTree(graphIndex, grammar, symbolNodes, graph, pape
 
 
 function linkAttributes(graphIndex, attributeNodes, grammar, graph) {
+
     const productionRule = grammar.productionRules[graphIndex];
     const productionRuleSymbols = productionRule.symbols;
 
     for (let i = 0; i < productionRuleSymbols.length; i++) {
+
         const symbolAttributes = productionRuleSymbols[i].attributes;
 
         for (let j = 0; j < symbolAttributes.length; j++) {
+
             const attribute = symbolAttributes.getAt(j);
 
             for (let k = 0; k < attribute.dependencies.length; k++) {
+
                 const dependency = attribute.dependencies[k];
 
                 const link = new joint.shapes.attrsys.AttributeLink();
+
                 link.source(attributeNodes[i][j]);
                 link.target(attributeNodes[dependency.toSymbolIndex][dependency.toAttributeIndexInsideSymbol]);
                 link.addTo(graph);

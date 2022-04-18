@@ -1,5 +1,6 @@
 import {emptyArray} from './utils.js';
 import {hideGraphCorrectIcon, resetErrors} from './dependenciesGraphButtons.js';
+import {SYMBOL_HEIGHT, SYMBOL_WIDTH} from "./joint.attrsys.js";
 
 export const MIN_SCALE = 0.2;
 export const MAX_SCALE = 5;
@@ -35,7 +36,14 @@ export class DependenciesGraph {
      * Return the children of the root, sorted by their x coordinate, from left to right.
      */
     getChildrenSortedByX(root) {
-        let children = this.graph.getSuccessors(root);
+
+        const links = this.graph.getConnectedLinks(root, {outbound: true});
+
+        let children = links.map(l => {
+            const targetId = l.get('target').id;
+            return this.graph.getCell(targetId);
+        })
+
         return children.sort((a, b) => a.position().x - b.position().x);
     }
 
@@ -195,7 +203,8 @@ export class DependenciesGraph {
             /* Create new element */
             'blank:pointerdblclick': function (event, x, y) {
                 joint.shapes.attrsys.Symbol.create(
-                    x, y, grammar.productionRules[productionIndex].symbolNames, paper, graph);
+                    x - SYMBOL_WIDTH / 2, y - SYMBOL_HEIGHT / 2,
+                    grammar.productionRules[productionIndex].symbolNames, paper, graph);
             },
 
 
@@ -262,15 +271,6 @@ export class DependenciesGraph {
             },
 
 
-            /* Toggle the element name with the mouse right click */
-            'element:contextmenu': function (elementView) {
-                const model = elementView.model;
-                if (model.isSymbol() || model.isAttribute()) {
-                    model.toggleName();
-                }
-            },
-
-
             /* Adjust container borders */
             'element:pointermove': function (elementView) {
                 const model = elementView.model;
@@ -279,6 +279,7 @@ export class DependenciesGraph {
                 }
             },
         });
+
 
         // Code for zooming in and out found here:
         // https://stackoverflow.com/questions/56385868/mouse-wheel-event-has-jittery-zoom-scale-in-jointjs#69196310
@@ -293,6 +294,7 @@ export class DependenciesGraph {
                 paper.translate(-x * newScale + event.offsetX, -y * newScale + event.offsetY);
             }
         }
+
 
         function removeCell(model) {
             if (model.get('type') === 'attrsys.Symbol') {

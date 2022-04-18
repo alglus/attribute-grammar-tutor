@@ -3,8 +3,17 @@ import {arrayHasDuplicateValues, getLongestStringLengthInSet, parameterHasBeenSp
 export let SYMBOL_WIDTH;
 export let SYMBOL_HEIGHT;
 
-let ATTRIBUTE_WIDTH;
-let ATTRIBUTE_HEIGHT;
+export let ATTRIBUTE_WIDTH;
+export let ATTRIBUTE_HEIGHT;
+
+export let PAPER_MARGIN_X;
+export let PAPER_MARGIN_Y;
+export let SPACING_BETWEEN_CONTAINERS;
+
+export const SPACING_BETWEEN_ATTRIBUTES_X = 10;
+export const SPACING_BETWEEN_ATTRIBUTES_Y = 15;
+export const SPACE_BETWEEN_SYMBOL_AND_ATTRIBUTES = 15;
+export const MAX_ATTRIBUTES_IN_ONE_ROW = 4;
 
 const FONT_FAMILY = 'sometypeMono';
 const FONT_SIZE = 15;
@@ -47,6 +56,9 @@ function initialiseSizeConstants(grammar) {
     SYMBOL_WIDTH = setWidthBasedOnLongestName(longestSymbolLength, fontWidth, sidePadding);
     ATTRIBUTE_WIDTH = setWidthBasedOnLongestName(longestAttributeLength, fontWidth, sidePadding);
 
+    PAPER_MARGIN_X = 1.5 * SYMBOL_WIDTH;
+    PAPER_MARGIN_Y = 1.5 * SYMBOL_HEIGHT;
+    SPACING_BETWEEN_CONTAINERS = 1.5 * SYMBOL_WIDTH;
 }
 
 function setWidthBasedOnLongestName(nameLength, fontWidth, sidePadding) {
@@ -101,14 +113,6 @@ function defineSymbolShape() {
         }
     }, {
         /* Object functions */
-        toggleName: function () {
-            const symbolNames = this.prop('symbolNames');
-            const currentIndex = this.prop('currentIndex');
-
-            this.setName(symbolNames[currentIndex]);
-            this.prop('attrs/label/text', symbolNames[currentIndex]);
-            this.prop('currentIndex', advanceIndex(symbolNames, currentIndex));
-        },
         scrollName: function (delta) {
             const symbolNames = this.prop('symbolNames');
             const currentIndex = this.prop('currentIndex');
@@ -214,7 +218,7 @@ function defineSymbolShape() {
             newSymbol.prop('graph', graph);
             newSymbol.prop('container', container);
             newSymbol.setName(symbolText);
-            newSymbol.position(x - SYMBOL_WIDTH / 2, y - SYMBOL_HEIGHT / 2);
+            newSymbol.position(x, y);
 
             newSymbol.addTo(graph);
             container.embed(newSymbol);
@@ -269,6 +273,7 @@ function defineAttributeShape() {
             }
         }
     }, {
+        /* Object functions */
         scrollName: function (delta) {
             const attributeNames = this.prop('attributeNames');
             const currentIndex = this.prop('currentIndex');
@@ -332,6 +337,7 @@ function defineAttributeShape() {
             }
         },
     }, {
+        /* Static function */
         create: function (x, y, container, attributeNames, paper, graph, attributeName) {
             let attributeText;
             if (parameterHasBeenSpecified(attributeName)) {
@@ -393,6 +399,8 @@ function defineContainerShape() {
             tagName: 'rect',
             selector: 'body',
         }],
+
+        /* Object functions */
         fitChildren: function () {
             this.fitEmbeds({
                 padding: CONTAINER_PADDING,
@@ -416,12 +424,11 @@ function defineContainerShape() {
             this.prop('attrs/body/strokeWidth', 1);
         },
     }, {
+        /* Static function */
         create: function (x, y) {
             const container = new joint.shapes.attrsys.Container();
 
-            const translateX = CONTAINER_PADDING + SYMBOL_WIDTH / 2;
-            const translateY = CONTAINER_PADDING + SYMBOL_HEIGHT / 2;
-            container.position(x - translateX, y - translateY);
+            container.position(x - CONTAINER_PADDING, y - CONTAINER_PADDING);
 
             return container;
         }
@@ -434,13 +441,15 @@ function defineContainerShape() {
  * @param grammar
  */
 function defineAddAttributeButton(grammar) {
+
     const backgroundWidth = 20;
+
     joint.elementTools.AddAttributeButton = joint.elementTools.Button.extend({
         name: 'add-attribute-button',
         options: {
             markup: [{
-                // Transparent box around the plus-icon, so that the user can hover over to the plus-icon,
-                // without leaving the symbol and thus hiding the plus-icon.
+                // Transparent box around the plus-icon, so that there is a larger area for the mouse to hover over,
+                // so the user can move the mouse over to the plus-icon more easily.
                 tagName: 'rect',
                 selector: 'body',
                 attributes: {
@@ -450,7 +459,7 @@ function defineAddAttributeButton(grammar) {
                     stroke: '#F00',
                     strokeWidth: 1,
 
-                    // Move the top-left corner of the background back to the right symbol corner.
+                    // Move the top-left corner of the background back to the symbol right corner.
                     x: -backgroundWidth / 2,
                     y: -SYMBOL_HEIGHT / 2,
                 }
@@ -478,7 +487,7 @@ function defineAddAttributeButton(grammar) {
             y: '50%',  // Moves the y halfway (50%) down. So it becomes the middle point of the right border of the symbol.
             offset: {
                 // Offset in relation to the (x,y) defined above.
-                x: backgroundWidth / 2, // The centre of the plus-icon should be (bckgndWidth/2) to the right of the symbol.
+                x: backgroundWidth / 2, // The centre of the plus-icon should be (backgroundWidth/2) to the right of the symbol.
                 y: 0                    // The y should stay in the middle of the symbol, as defined above.
             },
             rotate: true,
@@ -506,6 +515,7 @@ function defineAddAttributeButton(grammar) {
  * @returns new AttributeLink object
  */
 function defineAttributeLink() {
+
     return joint.shapes.standard.Link.define('attrsys.AttributeLink', {
         router: {name: 'manhattan'},
         connector: {name: 'rounded'},
@@ -540,6 +550,7 @@ function defineAttributeLink() {
  * @returns new SymbolLink object
  */
 function defineSymbolLink() {
+
     return joint.shapes.standard.Link.define('attrsys.SymbolLink', {
         router: {name: 'normal'},
         connector: {name: 'rounded'},
@@ -569,26 +580,23 @@ function defineSymbolLink() {
 }
 
 
-function advanceIndex(array, currentIndex) {
-    let nextIndex = ++currentIndex;
-    if (nextIndex >= array.length) {
-        nextIndex = 0;
-    }
-    return nextIndex;
-}
-
 function moveIndex(array, currentIndex, delta) {
+
     let newIndex = currentIndex + delta;
+
     if (newIndex >= array.length) {
         newIndex = newIndex - array.length;
+
     } else if (newIndex < 0) {
         newIndex = array.length + newIndex;
     }
+
     return newIndex;
 }
 
 
 function getNewConnectTool(cell) {
+
     return new joint.linkTools.Connect({
         markup: [{
             tagName: 'rect',
@@ -608,11 +616,10 @@ function getNewConnectTool(cell) {
     });
 }
 
-export function findEmptySpotForNewAttribute(symbolPosition, container, graph) {
-    const horizontalSpacing = 10;
-    const verticalSpacing = 15;
 
-    const initialX = symbolPosition.x + SYMBOL_WIDTH + 15;
+export function findEmptySpotForNewAttribute(symbolPosition, container, graph) {
+
+    const initialX = symbolPosition.x + SYMBOL_WIDTH + SPACE_BETWEEN_SYMBOL_AND_ATTRIBUTES;
 
     let x = initialX;
     let y = symbolPosition.y;
@@ -620,26 +627,38 @@ export function findEmptySpotForNewAttribute(symbolPosition, container, graph) {
     let spotsSearchedToTheRight = 0;
 
     while (true) {
+
         const nextSpot = new g.Rect(x, y, ATTRIBUTE_WIDTH, ATTRIBUTE_HEIGHT);
+
+        // Find out, whether there are any sibling attributes already at (x,y).
         const underlyingModels = graph.findModelsInArea(nextSpot);
         const underlyingAttributes = leaveOnlyAttributesInOwnContainer(underlyingModels, container);
 
+        // The spot is empty.
         if (underlyingAttributes.length === 0) break;
+
 
         spotsSearchedToTheRight += 1;
 
-        if (spotsSearchedToTheRight % 4 === 0) {
-            y += ATTRIBUTE_HEIGHT + verticalSpacing;
+        if (spotsSearchedToTheRight % MAX_ATTRIBUTES_IN_ONE_ROW === 0) {
+
+            // Advance to the next row of attributes.
+            y += ATTRIBUTE_HEIGHT + SPACING_BETWEEN_ATTRIBUTES_Y;
             x = initialX;
+
         } else {
-            x += ATTRIBUTE_WIDTH + horizontalSpacing;
+
+            // Move one attribute to the right.
+            x += ATTRIBUTE_WIDTH + SPACING_BETWEEN_ATTRIBUTES_X;
         }
     }
 
     return {x: x, y: y}
 }
 
+
 function leaveOnlyAttributesInOwnContainer(modelsArray, container) {
+
     return modelsArray
         .filter(m => m.get('type') === 'attrsys.Attribute') // leave only attributes
         .filter(m => m.getContainer() === container)        // exclude any attributes inside other containers
