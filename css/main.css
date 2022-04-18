@@ -6,13 +6,21 @@
     src: url(../fonts/sometype-mono.regular.ttf);
 }
 
-body {
+#mainContainer {
     min-width: 470px;
     height: 100vh;
     min-height: 100vh;
-    margin: 0;
     display: flex;
     flex-direction: column;
+}
+
+/* Header */
+.headerButtons {
+    margin-top: 1rem;
+}
+
+#aboutBtn {
+    margin-left: 10px;
 }
 
 footer {
@@ -28,6 +36,11 @@ footer div {
     margin-top: 3rem;
     padding-top: 1rem;
     padding-bottom: 1rem;
+}
+
+#grammarText {
+    /* So that it doesn't shrink more than the title "Attribute Grammar" on the left. */
+    min-height: 62px;
 }
 
 #grammarErrorMessages {
