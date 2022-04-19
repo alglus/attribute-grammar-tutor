@@ -21,4 +21,10 @@ $(document).ready(function () {
     $('#dependenciesResetAllBtn').click(function () {
         clearAllGraphs();
     });
+
+    // Replace the textarea for the Attribute Grammar with a CodeMirror instance, in order to provide line numbering.
+    CodeMirror.fromTextArea(document.getElementById('grammarText'), {
+        lineNumbers: true,
+        lineWrapping: true,
+    });
 });

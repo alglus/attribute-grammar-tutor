@@ -38,9 +38,9 @@ footer div {
     padding-bottom: 1rem;
 }
 
-#grammarText {
-    /* So that it doesn't shrink more than the title "Attribute Grammar" on the left. */
-    min-height: 62px;
+
+#grammarTextWrapper {
+    padding: 0;
 }
 
 #grammarErrorMessages {
