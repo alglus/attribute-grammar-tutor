@@ -198,8 +198,9 @@ export function clearAllGraphs() {
 }
 
 function clearGraph(graphIndex) {
-    DependenciesGraph.allGraphs[graphIndex].clearHighlightedElementsList();
     DependenciesGraph.allGraphs[graphIndex].graph.clear();
+    DependenciesGraph.allGraphs[graphIndex].resetScale();
+    DependenciesGraph.allGraphs[graphIndex].clearHighlightedElementsList();
 }
 
 

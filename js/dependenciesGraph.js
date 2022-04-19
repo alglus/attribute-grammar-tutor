@@ -75,6 +75,11 @@ export class DependenciesGraph {
         this.clearHighlightedElementsList();
     }
 
+    resetScale() {
+        this.paper.scale(1, 1);
+        this.paper.translate(0, 0);
+    }
+
 
     #createPaper(graph, graphContainer, namespace) {
         return new joint.dia.Paper({
