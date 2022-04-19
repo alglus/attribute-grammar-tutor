@@ -11,6 +11,7 @@ import {
     isInArray
 } from './utils.js';
 
+
 /**
  * Grammar class
  *
@@ -36,25 +37,27 @@ export class Grammar {
 
         const grammarTextRows = splitIntoRows(replaceMultipleWhiteSpacesByOne(grammarText));
 
-        for (const row of grammarTextRows) {
+        for (let i = 0; i < grammarTextRows.length; i++) {
+
+            const row = grammarTextRows[i];
 
             if (textIsEmpty(row)) continue;
 
             const rowHalves = row.split(':');
 
             if (rowHalves.length > 2) {
-                this.#addError(row, "There can only be one separator ':' in a row.");
+                this.#addError(i, row, "There can only be one separator ':' in a row.");
             }
 
             const productionRuleText = rowHalves[0];
-            const parsingResult = this.#parseProductionRule(productionRuleText);
+            const parsingResult = this.#parseProductionRule(i, productionRuleText);
             if (parsingResult === ERROR) continue;
 
             // A production rule must not necessarily have some attribute attached.
             // Thus, we only parse the attributes, if there are any.
             if (rowHalves.length === 2) {
                 const attributesText = rowHalves[1];
-                this.#parseAttributes(attributesText);
+                this.#parseAttributes(i, attributesText);
             }
         }
 
@@ -62,18 +65,18 @@ export class Grammar {
     }
 
 
-    #parseProductionRule(productionRuleText) {
+    #parseProductionRule(lineNumber, productionRuleText) {
 
         const productionRule = new ProductionRule();
 
         const productionRuleHalves = productionRuleText.split('->');
         if (productionRuleHalves.length !== 2) {
-            this.#addError(productionRuleText, "The production rule must be separated by one arrow '->'.");
+            this.#addError(lineNumber, productionRuleText, "The production rule must be separated by one arrow '->'.");
             return ERROR;
         }
 
-        const parsingLeftSideResult = this.#parseProductionRuleLeftSide(productionRuleText, productionRuleHalves[0], productionRule);
-        const parsingRightSideResult = this.#parseProductionRuleRightSide(productionRuleText, productionRuleHalves[1], productionRule);
+        const parsingLeftSideResult = this.#parseProductionRuleLeftSide(lineNumber, productionRuleText, productionRuleHalves[0], productionRule);
+        const parsingRightSideResult = this.#parseProductionRuleRightSide(lineNumber, productionRuleText, productionRuleHalves[1], productionRule);
 
         if (parsingLeftSideResult === ERROR || parsingRightSideResult === ERROR) return ERROR;
 
@@ -81,23 +84,23 @@ export class Grammar {
     }
 
 
-    #parseProductionRuleLeftSide(productionRuleText, productionRuleLeftText, productionRule) {
+    #parseProductionRuleLeftSide(lineNumber, productionRuleText, productionRuleLeftText, productionRule) {
 
         const productionLeftSymbols = splitIntoWords(productionRuleLeftText);
         const leftNonterminal = productionLeftSymbols[0];
 
         if (textIsEmpty(leftNonterminal)) {
-            this.#addError(productionRuleText, 'A nonterminal is missing on the left side of the production.');
+            this.#addError(lineNumber, productionRuleText, 'A nonterminal is missing on the left side of the production.');
             return ERROR;
         }
 
         if (containsAny(leftNonterminal, this.#FORBIDDEN_SYMBOLS)) {
-            this.#addError(leftNonterminal, `The characters '${this.#FORBIDDEN_SYMBOLS.join(' ')}' are not allowed as (non-)terminals.`);
+            this.#addError(lineNumber, leftNonterminal, `The characters '${this.#FORBIDDEN_SYMBOLS.join(' ')}' are not allowed as (non-)terminals.`);
             return ERROR;
         }
 
         if (productionLeftSymbols.length > 1) {
-            this.#addError(productionRuleText, 'There may only be one nonterminal on the left side of a production rule.');
+            this.#addError(lineNumber, productionRuleText, 'There may only be one nonterminal on the left side of a production rule.');
             return ERROR;
         }
 
@@ -108,7 +111,7 @@ export class Grammar {
     }
 
 
-    #parseProductionRuleRightSide(productionRuleText, productionRuleRightText, productionRule) {
+    #parseProductionRuleRightSide(lineNumber, productionRuleText, productionRuleRightText, productionRule) {
 
         if (textIsEmpty(productionRuleRightText)) {
             // An empty production right side stands for an empty word (ε). So there are no symbols to add.
@@ -116,7 +119,8 @@ export class Grammar {
         }
 
         if (containsAny(productionRuleRightText, this.#FORBIDDEN_SYMBOLS)) {
-            this.#addError(productionRuleRightText, `The characters '${this.#FORBIDDEN_SYMBOLS.join(' ')}' are not allowed as (non-)terminals.` +
+            this.#addError(lineNumber, productionRuleRightText,
+                `The characters '${this.#FORBIDDEN_SYMBOLS.join(' ')}' are not allowed as (non-)terminals.` +
                 " Maybe you forgot the ':' as a separation between the production rule and the attribute equations?");
             return ERROR;
         }
@@ -130,7 +134,7 @@ export class Grammar {
     }
 
 
-    #parseAttributes(attributesText) {
+    #parseAttributes(lineNumber, attributesText) {
 
         const attributeEquations = attributesText.split(';');
 
@@ -139,24 +143,24 @@ export class Grammar {
             const equationHalves = attributeEquation.split('=');
 
             if (equationHalves.length === 1) {
-                this.#addError(attributeEquation, "The attribute equation needs to have a '='.");
+                this.#addError(lineNumber, attributeEquation, "The attribute equation needs to have a '='.");
                 continue;
             }
             if (equationHalves.length > 2) {
-                this.#addError(attributeEquation, "There can only be one equals sign '=' in an equation.");
+                this.#addError(lineNumber, attributeEquation, "There can only be one equals sign '=' in an equation.");
                 continue;
             }
 
             const attributeNameAndIndexMatcher = /.*?(\w+?)\[(\d+?)].*?/g;
             const productionRule = getLastArrayItem(this.#productionRules);
 
-            const leftAttribute = this.#parseLeftAttribute(equationHalves[0], attributeEquation, productionRule, attributeNameAndIndexMatcher);
+            const leftAttribute = this.#parseLeftAttribute(lineNumber, equationHalves[0], attributeEquation, productionRule, attributeNameAndIndexMatcher);
             if (leftAttribute === ERROR) return;
 
             // We can move on, without check, whether there was a parsing error of the right attribute, as we have done for the left one.
             // This is because no further functions depend on the parsed values of the right attributes and so no runtime error can occur.
             // This way we parse as many attributes as possible, without aborting and can show more warnings to the user.
-            this.#parseRightAttribute(equationHalves[1], attributeEquation, leftAttribute, productionRule, attributeNameAndIndexMatcher);
+            this.#parseRightAttribute(lineNumber, equationHalves[1], attributeEquation, leftAttribute, productionRule, attributeNameAndIndexMatcher);
         }
 
         this.#mergeMissingAttributesAndSort();
@@ -164,17 +168,17 @@ export class Grammar {
     }
 
 
-    #parseLeftAttribute(equationLeftHalf, attributeEquation, productionRule, attributeNameAndIndexMatcher) {
+    #parseLeftAttribute(lineNumber, equationLeftHalf, attributeEquation, productionRule, attributeNameAndIndexMatcher) {
 
         const matchedLeftAttributes = Array.from(equationLeftHalf.matchAll(attributeNameAndIndexMatcher));
 
-        if (!matchedLeftAttributes) {
-            this.#addError(attributeEquation, 'The attribute on the left hand side of the equation is wrongly formatted.');
+        if (!matchedLeftAttributes || matchedLeftAttributes.length === 0) {
+            this.#addError(lineNumber, attributeEquation, 'The attribute on the left hand side of the equation is wrongly formatted.');
             return ERROR;
         }
 
         if (matchedLeftAttributes.length > 1) {
-            this.#addError(attributeEquation, 'There can only be one attribute on the left of the equation.');
+            this.#addError(lineNumber, attributeEquation, 'There can only be one attribute on the left of the equation.');
             return ERROR;
         }
 
@@ -185,7 +189,7 @@ export class Grammar {
         const leftAttributeSymbolIndex = matchedLeftAttribute[2];
 
         if (leftAttributeSymbolIndex > productionRule.maxIndex()) {
-            this.#addError(attributeEquation, `The index in '${equationLeftHalf}' is higher than the number of symbols in the production.`);
+            this.#addError(lineNumber, attributeEquation, `The index in '${equationLeftHalf}' is higher than the number of symbols in the production.`);
             return ERROR;
         }
 
@@ -202,7 +206,7 @@ export class Grammar {
     }
 
 
-    #parseRightAttribute(equationRightHalf, attributeEquation, leftAttribute, productionRule, attributeNameAndIndexMatcher) {
+    #parseRightAttribute(lineNumber, equationRightHalf, attributeEquation, leftAttribute, productionRule, attributeNameAndIndexMatcher) {
 
         const matchedRightAttributes = Array.from(equationRightHalf.matchAll(attributeNameAndIndexMatcher));
 
@@ -216,7 +220,7 @@ export class Grammar {
             const rightAttributeIndex = matchedRightAttribute[2];
 
             if (rightAttributeIndex > productionRule.maxIndex()) {
-                this.#addError(attributeEquation, `The index in '${equationRightHalf}' is higher than the number of symbols in the production.`);
+                this.#addError(lineNumber, attributeEquation, `The index in '${equationRightHalf}' is higher than the number of symbols in the production.`);
                 return;
             }
 
@@ -294,7 +298,7 @@ export class Grammar {
 
                         const attributeIndexInsideSymbol = toSymbol.attributes.getIndexOf(dependency.toAttributeName);
                         if (attributeIndexInsideSymbol === ERROR) {
-                            this.#addError('#defineAttributeIndexesInDependencies()',
+                            this.#addError(i,'#defineAttributeIndexesInDependencies()',
                                 'An unexpected bug occurred in this function. Please report it, together with the used grammar.');
                         }
 
@@ -320,8 +324,9 @@ export class Grammar {
     }
 
 
-    #addError(placeInTextWithTheError, warningMessage) {
-        this.#errors.push(`<code>'${placeInTextWithTheError}'&nbsp;&nbsp;</code>${warningMessage}`);
+    #addError(lineNumberBase0, placeInTextWithTheError, warningMessage) {
+        const lineNumberBase1 = lineNumberBase0 + 1;
+        this.#errors.push(`<code>Line ${lineNumberBase1}: '${placeInTextWithTheError}'&nbsp;&nbsp;</code>${warningMessage}`);
     }
 
     get errors() {

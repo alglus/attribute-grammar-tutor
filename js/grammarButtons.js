@@ -1,6 +1,7 @@
 import {ERROR, textIsEmpty} from './utils.js';
 import {Grammar} from './grammar.js';
 import {createDependenciesGraphs, emptyDependenciesGraphsArray, removeAllGraphs} from './dependenciesGraphButtons.js';
+import {grammarInput} from "./init.js";
 
 
 export function applyGrammar(grammarText) {
@@ -69,14 +70,22 @@ function clearGrammarErrorMessages() {
 
 
 function enableDisableGrammarElementsAfterApplyingGrammar() {
-    $('#grammarText').prop('disabled', true);
+    grammarInput.setOption('readOnly', true);
+    grammarInput.getDoc().eachLine((line) => {
+        grammarInput.getDoc().addLineClass(line, 'wrap', 'disabledText')
+    })
+
     $('#applyGrammarButton').prop('disabled', true);
     $('#editGrammarButton').prop('disabled', false);
 }
 
 
 function enableDisableGrammarElementsInOrderToEditGrammar() {
-    $('#grammarText').prop('disabled', false);
+    grammarInput.setOption('readOnly', false);
+    grammarInput.getDoc().eachLine((line) => {
+        grammarInput.getDoc().removeLineClass(line, 'wrap', 'disabledText')
+    })
+
     $('#applyGrammarButton').prop('disabled', false);
     $('#editGrammarButton').prop('disabled', true);
 }

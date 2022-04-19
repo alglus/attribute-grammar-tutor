@@ -17,6 +17,10 @@
   border-radius: 0.25rem;
 }
 
+.disabledText {
+  color: #999;
+}
+
 /* PADDING */
 
 .CodeMirror-lines {
