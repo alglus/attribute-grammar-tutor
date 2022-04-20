@@ -52,6 +52,17 @@ footer div {
     display: none;
 }
 
+#dependenciesCollapseBtnTitle {
+    display: flex;
+}
+
+#dependenciesCollapseBtnInfo {
+    position: relative;
+    flex: 1 1 auto;
+    text-align: right;
+    padding-right: 1rem;
+}
+
 #dependencyGraphsRow {
     margin-left: 8px;
     margin-right: 8px;

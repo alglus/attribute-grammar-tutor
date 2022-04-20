@@ -33,4 +33,10 @@ $(document).ready(function () {
             'B -> u   : x[0] = a[0]; y[0] = b[0]\n' +
             'B -> v   : y[0] = x[0]; x[0] = 0'
     });
+
+    // Initialise the bootstrap tooltips.
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
 });
