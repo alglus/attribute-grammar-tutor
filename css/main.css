@@ -105,7 +105,7 @@ footer div {
 .graphCorrectCheck {
     float: right;
     margin-top: 6px;
-    fill: #198754;
+    color: #198754;
 }
 
 .graphErrors {
