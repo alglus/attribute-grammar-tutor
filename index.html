@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,6 +11,7 @@
 </head>
 <body>
 <div id="mainContainer" class="container">
+    <!-- Header -->
     <header>
         <h1 class="float-start">Attribute Systems Tutor</h1>
         <button id="aboutBtn" type="button" class="headerButtons btn btn-outline-secondary btn-sm float-end"
@@ -31,7 +32,7 @@
         </button>
     </header>
     <main>
-        <!-- Grammar text field -->
+        <!-- Grammar input -->
         <div class="input-group pt-4 mb-2">
             <span class="input-group-text">Attribute <br>Grammar</span>
             <div class="form-control" id="grammarInputWrapper"></div>
@@ -40,6 +41,9 @@
         <!-- Grammar buttons -->
         <button type="button" id="applyGrammarButton" class="btn btn-primary me-2">Apply</button>
         <button type="button" id="editGrammarButton" class="btn btn-secondary" disabled>Edit</button>
+
+        <!-- noscript warning -->
+        <noscript><div class="alert alert-danger" role="alert" >This page only works with JavaScript enabled.</div></noscript>
 
         <!-- Grammar errors -->
         <ul class="list-group pt-3" id="grammarErrorMessages"></ul>
@@ -159,6 +163,8 @@
             </div>
         </div>
     </main>
+
+    <!-- Footer -->
     <footer>
         <div class="border-top text-center">
             <a href="https://www.in.tum.de/i02/impressum/" target="_blank" rel="noopener noreferrer" class="text-muted">Impressum</a>

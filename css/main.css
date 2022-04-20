@@ -6,6 +6,7 @@
     src: url(../fonts/sometype-mono.regular.ttf);
 }
 
+/* Main */
 #mainContainer {
     min-width: 470px;
     height: 100vh;
@@ -13,6 +14,13 @@
     display: flex;
     flex-direction: column;
 }
+
+#noscript {
+    width: 50%;
+    margin: 3rem auto 0;
+    text-align: center;
+}
+
 
 /* Header */
 .headerButtons {
@@ -23,6 +31,7 @@
     margin-left: 10px;
 }
 
+/* Footer */
 footer {
     flex: 1;
     position: relative;
@@ -39,6 +48,7 @@ footer div {
 }
 
 
+/* Grammar input */
 #grammarInputWrapper {
     padding: 0;
 }
@@ -48,6 +58,7 @@ footer div {
 }
 
 
+/* Dependencies exercise */
 #dependenciesExercise {
     display: none;
 }
@@ -96,7 +107,6 @@ footer div {
     margin-top: 6px;
     fill: #198754;
 }
-
 
 .graphErrors {
     display: none;
