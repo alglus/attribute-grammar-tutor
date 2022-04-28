@@ -38,6 +38,10 @@ export function getLastArrayItem(array) {
     return array[getLastArrayIndex(array)];
 }
 
+export function getPenultimateArrayItem(array) {
+    return array[getLastArrayIndex(array) - 1];
+}
+
 export function emptyArray(array) {
     array.length = 0;
 }
@@ -62,6 +66,10 @@ export function arrayHasDuplicateValues(array) {
     return array.length !== new Set(array).size;
 }
 
+export function getOrCreateArray(array) {
+    return array || [];
+}
+
 
 /* Sets */
 export function getLongestStringLengthInSet(set) {
@@ -72,6 +80,20 @@ export function getLongestStringLengthInSet(set) {
         }
     })
     return longestStringLength;
+}
+
+
+/* Maps */
+export function mapKeysAreEqual(map1, map2) {
+
+    if (map1.size !== map2.size)
+        return false;
+
+    for (const key1 of map1.keys()) {
+        if (!map2.has(key1))
+            return false;
+    }
+    return true;
 }
 
 
@@ -144,6 +166,10 @@ export class IndexedMap {
             sortedMap.set(key, this.#map.get(key));
         })
         this.#map = sortedMap;
+    }
+
+    values() {
+        return this.#map.values();
     }
 
     * [Symbol.iterator]() {

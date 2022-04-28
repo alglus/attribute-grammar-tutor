@@ -8,7 +8,7 @@ import {
     ERROR,
     containsAny,
     IndexedMap,
-    isInArray
+    isInArray, getOrCreateArray, emptyArray, arrayIsEmpty, mapKeysAreEqual, getPenultimateArrayItem
 } from './utils.js';
 
 
@@ -28,6 +28,7 @@ export class Grammar {
     #allNonterminalNames = new Set();
     #allAttributeNames = new Set();
     #attributesBySymbol = new Map();
+    #nonterminals = new Map();
     #productionRules = [];
     #errors = [];
     #numberOfElementsPerRule = [];
@@ -62,6 +63,8 @@ export class Grammar {
         }
 
         this.#computeTerminals();
+
+        this.#computeStrongAcyclicityIterations();
     }
 
 
@@ -81,6 +84,7 @@ export class Grammar {
         if (parsingLeftSideResult === ERROR || parsingRightSideResult === ERROR) return ERROR;
 
         this.#productionRules.push(productionRule);
+        this.#addToNonterminals(productionRule);
     }
 
 
@@ -108,6 +112,8 @@ export class Grammar {
 
         this.#allNonterminalNames.add(leftNonterminal);
         this.#allSymbolNames.add(leftNonterminal);
+
+        this.#addNonterminal(leftNonterminal);
     }
 
 
@@ -134,6 +140,24 @@ export class Grammar {
     }
 
 
+    #addNonterminal(nonterminalName) {
+
+        if (!this.#nonterminals.has(nonterminalName)) {
+
+            this.#nonterminals.set(nonterminalName, new Nonterminal(nonterminalName));
+        }
+    }
+
+
+    #addToNonterminals(productionRule) {
+
+        const leftNonterminalName = productionRule.leftSide().name;
+
+        const productionRules = getOrCreateArray(this.#nonterminals.get(leftNonterminalName).productionRules);
+        productionRules.push(productionRule);
+    }
+
+
     #parseAttributes(lineNumber, attributesText) {
 
         const attributeEquations = attributesText.split(';');
@@ -143,7 +167,7 @@ export class Grammar {
             const equationHalves = attributeEquation.split('=');
 
             if (equationHalves.length === 1) {
-                this.#addError(lineNumber, attributeEquation, "The attribute equation needs to have a '='.");
+                this.#addError(lineNumber, attributeEquation, "The attribute equation must have a '='.");
                 continue;
             }
             if (equationHalves.length > 2) {
@@ -186,7 +210,7 @@ export class Grammar {
         const matchedLeftAttribute = matchedLeftAttributes[0];
 
         const leftAttributeName = matchedLeftAttribute[1];
-        const leftAttributeSymbolIndex = matchedLeftAttribute[2];
+        const leftAttributeSymbolIndex = Number(matchedLeftAttribute[2]);
 
         if (leftAttributeSymbolIndex > productionRule.maxIndex()) {
             this.#addError(lineNumber, attributeEquation, `The index in '${equationLeftHalf}' is higher than the number of symbols in the production.`);
@@ -200,7 +224,7 @@ export class Grammar {
 
         symbolOfLeftAttribute.addAttribute(newLeftAttribute);
 
-        this.#addAttributeToSymbolListOfAttributes(symbolOfLeftAttribute, newLeftAttribute);
+        this.#addToAttributesBySymbol(symbolOfLeftAttribute, newLeftAttribute);
 
         return {name: leftAttributeName, symbolIndex: leftAttributeSymbolIndex,};
     }
@@ -217,7 +241,7 @@ export class Grammar {
         for (const matchedRightAttribute of matchedRightAttributes) {
 
             const rightAttributeName = matchedRightAttribute[1];
-            const rightAttributeIndex = matchedRightAttribute[2];
+            const rightAttributeIndex = Number(matchedRightAttribute[2]);
 
             if (rightAttributeIndex > productionRule.maxIndex()) {
                 this.#addError(lineNumber, attributeEquation, `The index in '${equationRightHalf}' is higher than the number of symbols in the production.`);
@@ -227,17 +251,19 @@ export class Grammar {
             this.#allAttributeNames.add(rightAttributeName);
 
             const newRightAttribute = new Attribute(rightAttributeName);
-            const dependencyFromRightToLeftAttribute = new Dependency(leftAttribute.name, leftAttribute.symbolIndex);
-
             const symbolOfRightAttribute = productionRule.symbols[rightAttributeIndex];
+
+            const dependencyFromRightToLeftAttribute = Dependency.forUnsortedAttribute(
+                rightAttributeName, rightAttributeIndex, leftAttribute.name, leftAttribute.symbolIndex);
+
             symbolOfRightAttribute.addAttributeAndDependency(newRightAttribute, dependencyFromRightToLeftAttribute);
 
-            this.#addAttributeToSymbolListOfAttributes(symbolOfRightAttribute, newRightAttribute);
+            this.#addToAttributesBySymbol(symbolOfRightAttribute, newRightAttribute);
         }
     }
 
 
-    #addAttributeToSymbolListOfAttributes(symbol, newAttribute) {
+    #addToAttributesBySymbol(symbol, newAttribute) {
 
         const symbolName = symbol.name;
         const newAttributeName = newAttribute.name;
@@ -254,7 +280,10 @@ export class Grammar {
         if (this.#attributesBySymbol.has(symbolName)) {
 
             const existingAttributes = this.#attributesBySymbol.get(symbolName);
-            existingAttributes.set(newAttributeName, newCleanAttribute);
+
+            if (!existingAttributes.has(newAttributeName)) {
+                existingAttributes.set(newAttributeName, newCleanAttribute);
+            }
 
         } else {
 
@@ -289,8 +318,10 @@ export class Grammar {
             for (const symbol of productionRule.symbols) {
                 this.#numberOfElementsPerRule[i]++;
 
-                for (const [attributeName, attribute] of symbol.attributes) {
+                for (let attributeIndex = 0; attributeIndex < symbol.attributes.length; attributeIndex++) {
                     this.#numberOfElementsPerRule[i]++;
+
+                    const attribute = symbol.attributes.getAt(attributeIndex);
 
                     for (const dependency of attribute.dependencies) {
 
@@ -298,10 +329,11 @@ export class Grammar {
 
                         const attributeIndexInsideSymbol = toSymbol.attributes.getIndexOf(dependency.toAttributeName);
                         if (attributeIndexInsideSymbol === ERROR) {
-                            this.#addError(i,'#defineAttributeIndexesInDependencies()',
+                            this.#addError(i, '#defineAttributeIndexesInDependencies()',
                                 'An unexpected bug occurred in this function. Please report it, together with the used grammar.');
                         }
 
+                        dependency.fromAttributeIndexInsideSymbol = attributeIndex;
                         dependency.toAttributeIndexInsideSymbol = attributeIndexInsideSymbol;
                     }
                 }
@@ -320,6 +352,183 @@ export class Grammar {
             if (!this.#allNonterminalNames.has(symbol)) {
                 this.#allTerminalNames.add(symbol);
             }
+        }
+    }
+
+
+    #computeStrongAcyclicityIterations() {
+
+        let iterationIndex = 0;
+        let someNonterminalIsUnstable = true;
+
+        while (someNonterminalIsUnstable) {
+
+            someNonterminalIsUnstable = false;
+
+            for (const nonterminal of this.#nonterminals.values()) {
+
+                // The last nonterminal iteration is the current one, because a new iteration object has not been added yet.
+                // First we check whether the nonterminal iteration is stable, and then add a new iteration object.
+                const lastNonterminalIteration = nonterminal.getCurrentIteration();
+
+                if (lastNonterminalIteration.isStable) continue;
+
+                nonterminal.addIteration();
+
+                for (const productionRule of nonterminal.productionRules) {
+
+                    productionRule.addIteration();
+
+                    this.#emptyRedecoratedDependenciesBeforeNewIteration(productionRule);
+
+                    this.#redecorate(productionRule, iterationIndex);
+
+                    this.#calculateTransitiveClosure(productionRule, nonterminal, iterationIndex);
+                }
+
+                if (this.#nonterminalIsUnstable(nonterminal, iterationIndex, lastNonterminalIteration)) {
+                    someNonterminalIsUnstable = true;
+                }
+            }
+            iterationIndex++;
+        }
+    }
+
+
+    #emptyRedecoratedDependenciesBeforeNewIteration(productionRule) {
+
+        for (const symbol of productionRule.symbols) {
+
+            for (const attribute of symbol.attributes.values()) {
+
+                attribute.emptyRedecoratedDependencies();
+            }
+        }
+    }
+
+    #redecorate(productionRule, iterationIndex) {
+
+        for (let symbolIndex = 1; symbolIndex < productionRule.symbols.length; symbolIndex++) {
+
+            const symbol = productionRule.symbols[symbolIndex];
+
+            // Terminals cannot be roots of a production rule and thus cannot have transitive relations.
+            // Therefore, there cannot be relations to redecorate for terminals, and so we ignore them.
+            if (symbol.isNonterminal(this.#allNonterminalNames)) {
+
+                const prevNonterminalIteration = this.#nonterminals.get(symbol.name).getPreviousIteration(iterationIndex);
+
+                for (const relation of prevNonterminalIteration.transitiveRelations.values()) {
+
+                    const redecoratedRelation = Dependency.redecorateTo(relation, symbolIndex);
+
+                    const attribute = symbol.attributes.getAt(relation.fromAttributeIndexInsideSymbol);
+
+                    if (attribute.doesNotYetHave(redecoratedRelation)) {
+
+                        attribute.addRedecoratedDependency(redecoratedRelation);
+                        productionRule.iterations[iterationIndex].addRedecoratedRelation(redecoratedRelation);
+                    }
+                }
+            }
+        }
+    }
+
+
+    #calculateTransitiveClosure(productionRule, nonterminal, iterationNumber) {
+
+        for (let symbolIndex = 0; symbolIndex < productionRule.symbols.length; symbolIndex++) {
+
+            const symbol = productionRule.symbols[symbolIndex];
+
+            for (const attribute of symbol.attributes.values()) {
+
+                // DFS
+                const visited = new Set();
+                const parents = new Map();
+                const dependencyStack = [];
+
+                dependencyStack.push(...attribute.getAllDependencies());
+
+                while (!arrayIsEmpty(dependencyStack)) {
+
+                    const dependency = dependencyStack.pop();
+
+                    const targetHash = dependency.targetHash();
+                    const targetAttribute = productionRule.symbols[dependency.toSymbolIndex].attributes.getAt(dependency.toAttributeIndexInsideSymbol);
+
+                    // By traversing the graph with DFS, we came back to the attribute, where we started.
+                    if (symbolIndex === dependency.toSymbolIndex && attribute.name === targetAttribute.name) {
+                        productionRule.iterations[iterationNumber].cycleFound = true;
+                        break;
+                    }
+
+                    // New attribute, not yet visited during the DFS.
+                    if (!visited.has(targetHash)) {
+
+                        visited.add(targetHash);
+
+                        // In a dependency: a -> b, we set the parent of the target 'b' to 'a'.
+                        // This is needed, to later go back to the parents and add transitive closures.
+                        parents.set(targetHash, dependency.getSourceAttributeCoordinates());
+
+                        dependencyStack.push(...targetAttribute.getAllDependencies());
+
+                        if (Symbol.isRoot(dependency.toSymbolIndex)) {
+
+                            let parentCoordinates = parents.get(dependency.targetHash());
+
+                            // Traverse the DFS branch back to the start node.
+                            while (parentCoordinates !== undefined) {
+
+                                const parentAttribute = productionRule.symbols[parentCoordinates.symbolIndex].attributes.getAt(parentCoordinates.attributeIndex);
+                                const parentHash = `${parentCoordinates.symbolIndex}${parentAttribute.name}`;
+
+
+                                // The only transitive closures we are interested in, are the ones,
+                                // that start and end in the root.
+                                if (Symbol.isRoot(parentCoordinates.symbolIndex)) {
+
+                                    const newRootDependency = new Dependency(
+                                        parentAttribute.name, parentCoordinates.symbolIndex, parentCoordinates.attributeIndex,
+                                        targetAttribute.name, dependency.toSymbolIndex, dependency.toAttributeIndexInsideSymbol);
+
+                                    this.#addRootProjection(productionRule, iterationNumber, newRootDependency);
+                                    this.#addTransitiveRelation(nonterminal, iterationNumber, newRootDependency);
+                                }
+
+                                // Get the grandparent.
+                                parentCoordinates = parents.get(parentHash);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #addRootProjection(productionRule, iterationNumber, newDependency) {
+        productionRule.iterations[iterationNumber].rootProjections.set(newDependency.hash(), newDependency);
+    }
+
+    #addTransitiveRelation(nonterminal, iterationNumber, newDependency) {
+        nonterminal.iterations[iterationNumber].transitiveRelations.set(newDependency.hash(), newDependency);
+    }
+
+
+    #nonterminalIsUnstable(nonterminal, iterationIndex, prevNonterminalIteration) {
+
+        if (iterationIndex === 0)
+            return true;
+
+        const currentTransitiveRelations = nonterminal.iterations[iterationIndex].transitiveRelations;
+        const previousTransitiveRelations = prevNonterminalIteration.transitiveRelations;
+
+        if (mapKeysAreEqual(currentTransitiveRelations, previousTransitiveRelations)) {
+            nonterminal.iterations[iterationIndex].isStable = true;
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -368,6 +577,7 @@ class ProductionRule {
 
     symbols = [];
     symbolNames = [];
+    iterations = [];
 
     addSymbol(newSymbol) {
         this.symbols.push(newSymbol);
@@ -404,6 +614,10 @@ class ProductionRule {
         return this.rightSide().length;
     }
 
+    addIteration() {
+        this.iterations.push(new ProductionRuleIteration());
+    }
+
     toString() {
         let output = this.symbolNames[0] + ' ->';
 
@@ -430,6 +644,10 @@ class Symbol {
 
     name;
     attributes = new IndexedMap();
+
+    static isRoot(symbolIndex) {
+        return symbolIndex === 0;
+    }
 
     constructor(name) {
         this.name = name;
@@ -460,6 +678,10 @@ class Symbol {
         return this.attributes.has(attribute.name);
     }
 
+    isNonterminal(nonterminalNames) {
+        return nonterminalNames.has(this.name);
+    }
+
     toString() {
         return '(' + this.name + (this.attributes.length === 0 ? ')' : ': ' + this.attributes + ')');
     }
@@ -481,6 +703,7 @@ class Attribute {
 
     name;
     dependencies = [];
+    redecoratedDependencies = [];
     indirectlyIdentified = false;
 
     constructor(name) {
@@ -503,12 +726,24 @@ class Attribute {
         return attributeDoesNotYetHaveThisDependency;
     }
 
+    addRedecoratedDependency(newRedecoratedDependency) {
+        this.redecoratedDependencies.push(newRedecoratedDependency);
+    }
+
+    emptyRedecoratedDependencies() {
+        emptyArray(this.redecoratedDependencies);
+    }
+
     getDependencyMap() {
         const dependencyMap = new Map();
         for (const dependency of this.dependencies) {
             dependencyMap.set(dependency.toAttributeName, dependency);
         }
         return dependencyMap;
+    }
+
+    getAllDependencies() {
+        return this.dependencies.concat(this.redecoratedDependencies);
     }
 
     equals(otherAttribute) {
@@ -540,21 +775,122 @@ class Attribute {
  * - toAttributeIndexInsideSymbol = 2
  */
 class Dependency {
+
+    fromAttributeName;
     toAttributeName;
+
+    fromSymbolIndex;
     toSymbolIndex;
+
+    fromAttributeIndexInsideSymbol;
     toAttributeIndexInsideSymbol;
 
-    constructor(toAttributeName, toSymbolIndex) {
+    static forUnsortedAttribute(fromAttributeName, fromSymbolIndex, toAttributeName, toSymbolIndex) {
+        return new Dependency(fromAttributeName, fromSymbolIndex, null,
+            toAttributeName, toSymbolIndex, null);
+    }
+
+    static redecorateTo(relation, newSymbolIndex) {
+        return new Dependency(relation.fromAttributeName, newSymbolIndex, relation.fromAttributeIndexInsideSymbol,
+            relation.toAttributeName, newSymbolIndex, relation.toAttributeIndexInsideSymbol);
+    }
+
+    constructor(fromAttributeName, fromSymbolIndex, fromAttributeIndexInsideSymbol,
+                toAttributeName, toSymbolIndex, toAttributeIndexInsideSymbol) {
+        this.fromAttributeName = fromAttributeName;
+        this.fromSymbolIndex = fromSymbolIndex;
+        this.fromAttributeIndexInsideSymbol = fromAttributeIndexInsideSymbol;
         this.toAttributeName = toAttributeName;
         this.toSymbolIndex = toSymbolIndex;
+        this.toAttributeIndexInsideSymbol = toAttributeIndexInsideSymbol;
     }
 
     equals(otherDependency) {
-        return this.toAttributeName === otherDependency.toAttributeName
-            && this.toSymbolIndex === otherDependency.toSymbolIndex;
+        return this.hash() === otherDependency.hash();
+    }
+
+    getSourceAttributeCoordinates() {
+        return {symbolIndex: this.fromSymbolIndex, attributeIndex: this.fromAttributeIndexInsideSymbol};
+    }
+
+    sourceHash() {
+        return `${this.fromSymbolIndex}${this.fromAttributeName}`;
+    }
+
+    targetHash() {
+        return `${this.toSymbolIndex}${this.toAttributeName}`;
+    }
+
+    hash() {
+        return this.sourceHash() + this.targetHash();
     }
 
     toString() {
-        return `${this.toAttributeName}[${this.toSymbolIndex}]`;
+        return `${this.fromAttributeName}_${this.fromAttributeIndexInsideSymbol}[${this.fromSymbolIndex}]` +
+            ` -> ${this.toAttributeName}_${this.toAttributeIndexInsideSymbol}[${this.toSymbolIndex}]`;
+    }
+}
+
+
+class Nonterminal {
+
+    name;
+    iterations = [];
+    productionRules = [];
+
+    constructor(name) {
+        this.name = name;
+    }
+
+    addIteration() {
+        this.iterations.push(new NonterminalIteration());
+    }
+
+    getCurrentIteration() {
+        if (this.iterations.length === 0)
+            return NonterminalIteration.empty;
+
+        return getLastArrayItem(this.iterations);
+    }
+
+    getPreviousIteration(currentIterationIndex) {
+        if (currentIterationIndex === 0)
+            return NonterminalIteration.empty;
+
+        if (this.#currentIterationObjectNotYetCreated(currentIterationIndex))
+            return getLastArrayItem(this.iterations);
+
+        return getPenultimateArrayItem(this.iterations);
+    }
+
+    #currentIterationObjectNotYetCreated(currentIterationIndex) {
+        return currentIterationIndex === this.iterations.length;
+    }
+
+    toString() {
+
+    }
+}
+
+
+class NonterminalIteration {
+
+    static empty = new NonterminalIteration();
+
+    isStable = false;
+    transitiveRelations = new Map();
+}
+
+
+class ProductionRuleIteration {
+
+    static empty = new ProductionRuleIteration();
+
+    cycleFound = false;
+    rootProjections = new Map();
+    redecoratedRelations = new Map();
+
+    addRedecoratedRelation(relation) {
+        this.redecoratedRelations.set(relation.hash(), relation);
     }
 }
