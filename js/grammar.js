@@ -8,7 +8,7 @@ import {
     ERROR,
     containsAny,
     IndexedMap,
-    isInArray, getOrCreateArray, emptyArray, arrayIsEmpty, mapKeysAreEqual, getPenultimateArrayItem
+    isInArray, getOrCreateArray, emptyArray, arrayIsEmpty, mapKeysAreEqual, getPenultimateArrayItem, symbolIsRoot
 } from './utils.js';
 
 
@@ -66,7 +66,6 @@ export class Grammar {
         this.#computeTerminals();
 
         this.#computeStrongAcyclicityIterations();
-        console.log(this.nonterminals)
     }
 
 
@@ -477,7 +476,7 @@ export class Grammar {
 
                         dependencyStack.push(...targetAttribute.getAllDependencies());
 
-                        if (Symbol.isRoot(dependency.toSymbolIndex)) {
+                        if (symbolIsRoot(dependency.toSymbolIndex)) {
 
                             let parentCoordinates = parents.get(dependency.targetHash());
 
@@ -490,7 +489,7 @@ export class Grammar {
 
                                 // The only transitive closures we are interested in, are the ones,
                                 // that start and end in the root.
-                                if (Symbol.isRoot(parentCoordinates.symbolIndex)) {
+                                if (symbolIsRoot(parentCoordinates.symbolIndex)) {
 
                                     const newRootDependency = new Dependency(
                                         parentAttribute.name, parentCoordinates.symbolIndex, parentCoordinates.attributeIndex,
@@ -655,10 +654,6 @@ class Symbol {
 
     name;
     attributes = new IndexedMap();
-
-    static isRoot(symbolIndex) {
-        return symbolIndex === 0;
-    }
 
     constructor(name) {
         this.name = name;

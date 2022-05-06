@@ -38,8 +38,9 @@ function defineSymbolShape() {
     const Symbol = joint.shapes.standard.Rectangle.define('attrsys.Symbol', {
         graph: '',
         container: '',
+        symbolIndex: 0,
         symbolNames: [],
-        currentIndex: 0,
+        currentNameIndex: 0,
         size: {width: SYMBOL_WIDTH, height: SYMBOL_HEIGHT},
         attrs: {
             // z: 4,
@@ -72,12 +73,12 @@ function defineSymbolShape() {
         /* Object functions */
         scrollName: function (delta) {
             const symbolNames = this.prop('symbolNames');
-            const currentIndex = this.prop('currentIndex');
-            const newIndex = moveIndex(symbolNames, currentIndex, delta);
+            const currentNameIndex = this.prop('currentNameIndex');
+            const newNameIndex = moveIndex(symbolNames, currentNameIndex, delta);
 
-            this.setName(symbolNames[newIndex]);
-            this.prop('attrs/label/text', symbolNames[newIndex]);
-            this.prop('currentIndex', newIndex);
+            this.setName(symbolNames[newNameIndex]);
+            this.prop('attrs/label/text', symbolNames[newNameIndex]);
+            this.prop('currentNameIndex', newNameIndex);
         },
         getTools() {
             // The last tool in the array will be the one on top in the graph.
@@ -110,6 +111,12 @@ function defineSymbolShape() {
         },
         setName(name) {
             this.prop('attrs/root/title', name);
+        },
+        setIndex(index) {
+           this.prop('symbolIndex', index);
+        },
+        getIndex() {
+            return this.prop('symbolIndex');
         },
         getContainer() {
             return this.prop('container');
@@ -218,7 +225,7 @@ function defineAttributeShape() {
     const Attribute = joint.shapes.standard.Rectangle.define('attrsys.Attribute', {
         container: '',
         attributeNames: [],
-        currentIndex: 0,
+        currentNameIndex: 0,
         size: {width: ATTRIBUTE_WIDTH, height: ATTRIBUTE_HEIGHT},
         attrs: {
             root: {
@@ -251,12 +258,12 @@ function defineAttributeShape() {
         /* Object functions */
         scrollName: function (delta) {
             const attributeNames = this.prop('attributeNames');
-            const currentIndex = this.prop('currentIndex');
-            const newIndex = moveIndex(attributeNames, currentIndex, delta);
+            const currentNameIndex = this.prop('currentNameIndex');
+            const newNameIndex = moveIndex(attributeNames, currentNameIndex, delta);
 
-            this.setName(attributeNames[newIndex]);
-            this.prop('attrs/label/text', attributeNames[newIndex]);
-            this.prop('currentIndex', newIndex);
+            this.setName(attributeNames[newNameIndex]);
+            this.prop('attrs/label/text', attributeNames[newNameIndex]);
+            this.prop('currentNameIndex', newNameIndex);
         },
         adjustContainer: function () {
             this.getContainer().fitChildren();

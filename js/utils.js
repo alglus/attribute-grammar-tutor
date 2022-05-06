@@ -85,6 +85,10 @@ export function getLongestStringLengthInSet(set) {
     return longestStringLength;
 }
 
+export function setIsEmpty(set) {
+    return set.size === 0;
+}
+
 
 /* Maps */
 export function mapKeysAreEqual(map1, map2) {
@@ -128,6 +132,20 @@ export function cloneElementAndSetNewAttributeValue(elementToBeCloned, attribute
     }
 
     return newElement;
+}
+
+export function symbolIsRoot(symbolIndex) {
+    return symbolIndex === 0;
+}
+
+
+/* jQuery */
+export function disable(jQuerySelector) {
+    jQuerySelector.prop('disabled', true);
+}
+
+export function enable(jQuerySelector) {
+    jQuerySelector.prop('disabled', false);
 }
 
 

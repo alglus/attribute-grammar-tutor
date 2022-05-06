@@ -1,4 +1,4 @@
-import {cloneElementAndSetNewAttributeValue, emptyArray, ERROR} from "./utils.js";
+import {cloneElementAndSetNewAttributeValue, disable, emptyArray, enable, ERROR} from "./utils.js";
 import {AcyclicityGraph} from "./graph.js";
 import {drawDependencyGraph, GRAPH_TYPE} from "./drawDependencyGraph.js";
 import {
@@ -348,36 +348,48 @@ function assignFunctionToCheckButton(grammar, iterationIndex) {
 
 function checkIteration(grammar, iterationIndex) {
 
-    unhighlightText();
-    unhighlightRadio();
-    unhighlightTextInput();
-    removeAllTooltips();
+    clearCheckIterationErrors(iterationIndex);
 
-    let noErrorFound = true;
+    let errorFound = false;
 
+    // Check iteration stable
     const iterationStableAnswer = $(`input:radio[name=stable_${iterationIndex}]:checked`).val();
     const iterationStableCorrection = checkIterationStable(grammar, iterationStableAnswer, iterationIndex);
-    if (iterationStableCorrection === ERROR) noErrorFound = false;
+    if (iterationStableCorrection === ERROR) errorFound = true;
 
     for (let nonterminalIndex = 0; nonterminalIndex < acyclicityGraphs.length; nonterminalIndex++) {
 
+        // Check transitive relations
         const transitiveRelationsAnswer = $(`#transitiveRelation_${nonterminalIndex}_${iterationIndex}`).val();
         const transitiveRelationsCorrection = checkTransitiveRelations(grammar, transitiveRelationsAnswer, nonterminalIndex, iterationIndex);
-        if (transitiveRelationsCorrection === ERROR) noErrorFound = false;
+        if (transitiveRelationsCorrection === ERROR) errorFound = true;
 
         for (let productionRuleIndex = 0; productionRuleIndex < acyclicityGraphs[nonterminalIndex].length; productionRuleIndex++) {
 
+            // Check cycle found
             const cycleFoundAnswer = $(`input:radio[name=cycleFound_${nonterminalIndex}_${productionRuleIndex}_${iterationIndex}]:checked`).val();
             const cycleFoundCorrection = checkCycleFound(grammar, cycleFoundAnswer, nonterminalIndex, productionRuleIndex, iterationIndex);
-            if (cycleFoundCorrection === ERROR) noErrorFound = false;
+            if (cycleFoundCorrection === ERROR) errorFound = true;
 
+            // Check graph
             const graph = acyclicityGraphs[nonterminalIndex][productionRuleIndex][iterationIndex];
             const graphCorrection = checkAcyclicityGraph(grammar, graph, nonterminalIndex, productionRuleIndex, iterationIndex);
-            if (graphCorrection === ERROR) noErrorFound = false;
+            if (graphCorrection === ERROR) errorFound = true;
+
+            if (cycleFoundCorrection !== ERROR && graphCorrection !== ERROR) {
+                const graphCorrectIcon = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}][data-iteration=${iterationIndex}] > svg.acyclicityGraphCorrectIcon`)
+                graphCorrectIcon.show();
+            }
         }
     }
 
-    if (noErrorFound && iterationUnstable(grammar, iterationIndex)) {
+    if (errorFound) {
+        redFlashOnCheckButton(iterationIndex);
+    }
+
+    if (!errorFound && iterationUnstable(grammar, iterationIndex)) {
+        setCheckButtonCorrect(iterationIndex);
+        freezeIteration(iterationIndex);
         addIteration(grammar, iterationIndex + 1);
     }
 }
@@ -389,6 +401,16 @@ function iterationUnstable(grammar, iterationIndex) {
 
 /* Errors */
 const tooltips = [];
+
+function clearCheckIterationErrors(iterationIndex) {
+    unhighlightText();
+    unhighlightRadio();
+    unhighlightTextInput();
+    hideWarningIcons();
+    hideCorrectIcons();
+    removeAllTooltips();
+    removeRedFlashFromCheckButton(iterationIndex);
+}
 
 export function highlightTextAsError(jQuerySelector) {
     jQuerySelector.addClass('errorText');
@@ -414,6 +436,36 @@ function unhighlightTextInput() {
     $('.errorTextInput').removeClass('errorTextInput');
 }
 
+export function hideWarningIcons() {
+    $(`.acyclicityCycleFound > svg.acyclicityWarningIcon`).hide();
+}
+
+export function hideCorrectIcons() {
+    $(`.acyclicityCycleFound > svg.acyclicityGraphCorrectIcon`).hide();
+}
+
+function redFlashOnCheckButton(iterationIndex) {
+    const button = $(`#iterationCheck_${iterationIndex}`);
+
+    button.addClass('redFlash');
+
+    setTimeout(function () {
+        button.removeClass('redFlash');
+    }, 800);
+}
+
+function removeRedFlashFromCheckButton(iterationIndex) {
+    $(`#iterationCheck_${iterationIndex}`).removeClass('redFlash');
+}
+
+function setCheckButtonCorrect(iterationIndex) {
+    const button = $(`#iterationCheck_${iterationIndex}`);
+
+    button.removeClass('btn-primary');
+    button.addClass('btn-success');
+}
+
+
 export function addTooltip(jQuerySelector, tooltipText) {
     jQuerySelector.attr({
         'data-bs-toggle': 'tooltip',
@@ -424,11 +476,71 @@ export function addTooltip(jQuerySelector, tooltipText) {
     tooltips.push(jQuerySelector);
 }
 
+export function addHTMLTooltip(jQuerySelector, messages) {
+    jQuerySelector.attr({
+        'data-bs-toggle': 'tooltip',
+        'data-bs-placement': 'top',
+        'data-bs-html': 'true',
+        'data-bs-original-title': convertToTooltipText(messages),
+    });
+    jQuerySelector.tooltip();
+    tooltips.push(jQuerySelector);
+}
+
+function convertToTooltipText(messages) {
+    let text = '<ul class="listInTooltip">';
+    for (const message of messages) {
+        text += `<li>${message}</li>`;
+    }
+    text += '</ul>';
+    return text;
+}
+
 function removeAllTooltips() {
     for (const tooltipSelector of tooltips) {
         tooltipSelector.tooltip('dispose');
     }
     emptyArray(tooltips);
+}
+
+
+/* Freeze iteration */
+function freezeIteration(grammar, iterationIndex) {
+    disableCycleFoundRadioButtons(iterationIndex);
+    disableTransitiveRelationInput(iterationIndex);
+    disableLinkTypeRadioButtons(iterationIndex);
+    disableIterationStableRadioButtons(iterationIndex);
+    disableCheckIterationButton(iterationIndex);
+    disableAllGraphs(grammar, iterationIndex);
+}
+
+function disableCycleFoundRadioButtons(iterationIndex) {
+    disable($(`.acyclicityCycleFound[data-iteration=${iterationIndex}] input:radio`));
+}
+
+function disableTransitiveRelationInput(iterationIndex) {
+    disable($(`.acyclicityTransitiveRelationsItem[data-iteration=${iterationIndex}] input:text`));
+}
+
+function disableLinkTypeRadioButtons(iterationIndex) {
+    disable($(`.acyclicityLinkTypesButton[data-iteration=${iterationIndex}] input:radio`));
+}
+
+function disableIterationStableRadioButtons(iterationIndex) {
+    disable($(`.acyclicityIterationFooter[data-iteration=${iterationIndex}] input:radio`));
+}
+
+function disableCheckIterationButton(iterationIndex) {
+    disable($(`#iterationCheck_${iterationIndex}`));
+}
+
+function disableAllGraphs(grammar, iterationIndex) {
+    for (let nonterminalIndex = 0; nonterminalIndex < grammar.nonterminals.length; nonterminalIndex++) {
+        for (let productionIndex = 0; productionIndex < grammar.nonterminals.getAt(nonterminalIndex).productionRules.length; productionIndex++) {
+            const graph = acyclicityGraphs[nonterminalIndex][productionIndex][iterationIndex];
+            graph.disable();
+        }
+    }
 }
 
 

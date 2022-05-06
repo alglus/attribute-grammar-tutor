@@ -78,15 +78,15 @@ footer div {
 }
 
 .dependenciesGraphCard .card {
-    position: relative;
+    /*position: relative;*/
     width: 402px;
 }
 
 .dependenciesGraphCardHeader {
     font-family: sometypeMono, monospace;
     height: 3rem;
-    display: table;
-    align-items: center;
+    /*display: table;*/
+    /*align-items: center;*/
 }
 
 .dependenciesGraphCardTitle {
@@ -100,7 +100,7 @@ footer div {
     float: right;
 }
 
-.graphCorrectCheck {
+.dependencyGraphCorrectIcon {
     float: right;
     margin-top: 6px;
     color: #198754;
@@ -338,9 +338,9 @@ footer div {
     box-shadow: 0 0 4px rgba(0, 0, 0, .4);
 }
 
-.acyclicityLinkTypesButton input[type=radio]:checked + label {
-    background-color: #842029;
-}
+/*.acyclicityLinkTypesButton input[type=radio]:checked + label {*/
+/*    background-color: #842029;*/
+/*}*/
 
 .acyclicityLinkTypesButton .redecorated {
     background-color: rgba(70, 187, 0, .6);
@@ -368,6 +368,27 @@ footer div {
 .acyclicityCycleFound p {
     padding: 0 1rem;
     margin: 0;
+}
+
+.acyclicityWarningIcon {
+    /*float: right;*/
+    margin: auto 0.5rem auto auto;
+    color: #c71929;
+    display: none;
+    cursor: pointer;
+}
+
+.acyclicityGraphCorrectIcon {
+    /*float: right;*/
+    margin: auto 0.5rem auto auto;
+    color: #198754;
+    display: none;
+}
+
+.listInTooltip {
+    padding-left: 0.9rem !important;
+    font-size: 0.8rem !important;
+    text-align: left;
 }
 
 
@@ -500,6 +521,59 @@ footer div {
 
 .acyclicityIterationFooter div {
     margin: auto 0 auto 1rem;
+}
+
+.greenButton, .greenButton:hover, .greenButton:focus {
+    background-color: #157347;
+    border-color: #146c43;
+    box-shadow: 0 0 0 0;
+    transition: all 0.2s ease;
+}
+
+
+.redFlash {
+    -webkit-animation-name: redFlash;
+    -webkit-animation-duration: 800ms;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-name: redFlash;
+    animation-duration: 800ms;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in-out;
+}
+
+@-webkit-keyframes redFlash {
+    0% {
+        background-color: #c71929;
+        border-color: #c71929;
+        box-shadow: 0 0 0 .25rem rgba(199, 25, 41, 0.5);
+    }
+    40% {
+        background-color: #c71929;
+        border-color: #c71929;
+        box-shadow: 0 0 0 .25rem rgba(199, 25, 41, 0.5);
+    }
+    100% {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+}
+
+@keyframes redFlash {
+    0% {
+        background-color: #c71929;
+        border-color: #c71929;
+        box-shadow: 0 0 0 .25rem rgba(199, 25, 41, 0.5);
+    }
+    40% {
+        background-color: #c71929;
+        border-color: #c71929;
+        box-shadow: 0 0 0 .25rem rgba(199, 25, 41, 0.5);
+    }
+    100% {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
 }
 
 

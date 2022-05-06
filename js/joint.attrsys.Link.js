@@ -1,14 +1,21 @@
 import {DARK_GREY, ERROR_DARK_RED, LIGHT_GREY} from "./joint.attrsys.js";
 
 export function defineAttrsysLinks() {
-    const attrsysLink = defineLink();
 
+    const attrsysLink = defineLink();
     defineSymbolLink(attrsysLink);
     defineAttributeLink(attrsysLink);
-    defineRedecoratedLink(attrsysLink);
-    defineProjectedLink(attrsysLink);
+
+    const acyclicityLink = defineAcyclicityLink(attrsysLink);
+    defineRedecoratedLink(acyclicityLink);
+    defineProjectedLink(acyclicityLink);
 }
 
+
+/**
+ * Parent class of all links
+ * @returns new Link object
+ */
 function defineLink() {
 
     return joint.shapes.standard.Link.define('attrsys.Link', {
@@ -16,7 +23,6 @@ function defineLink() {
         attrs: {
             z: 2,
         },
-
     }, {
         getTools() {
             return [
@@ -24,12 +30,6 @@ function defineLink() {
                 new joint.linkTools.Remove({distance: '50%'}),
                 new joint.linkTools.TargetArrowhead(),
             ];
-        },
-        showErrorHighlighting(area) {
-            this.prop('attrs/line/stroke', ERROR_DARK_RED);
-        },
-        hideErrorHighlighting(area) {
-            this.prop('attrs/line/stroke', LIGHT_GREY);
         },
     });
 }
@@ -49,6 +49,13 @@ function defineSymbolLink(attrsysLink) {
                 strokeWidth: 3,
             }
         },
+    }, {
+        showErrorHighlighting(area) {
+            this.prop('attrs/line/stroke', ERROR_DARK_RED);
+        },
+        hideErrorHighlighting(area) {
+            this.prop('attrs/line/stroke', LIGHT_GREY);
+        },
     });
 }
 
@@ -67,28 +74,34 @@ function defineAttributeLink(attrsysLink) {
                 strokeWidth: 2,
             },
         },
+    }, {
+        showErrorHighlighting(area) {
+            this.prop('attrs/line/stroke', ERROR_DARK_RED);
+        },
+        hideErrorHighlighting(area) {
+            this.prop('attrs/line/stroke', DARK_GREY);
+        },
     });
 }
 
 
 /**
- * Redecorated link between attributes
- * @returns new AttributeLink object
+ * Parent class of the links used in the acyclicity exercise.
+ * @returns new AcyclicityLink object
  */
-function defineRedecoratedLink(attrsysLink) {
-    // TODO: split common features into one common parent
-    return attrsysLink.define('attrsys.RedecoratedLink', {
+function defineAcyclicityLink(attrsysLink) {
+
+    return attrsysLink.define('attrsys.AcyclicityLink', {
         router: {name: 'manhattan'},
         attrs: {
             line: {
-                stroke: '#46bb00ee',
                 strokeWidth: 4,
                 fill: 'none',
             },
             lineError: {
                 connection: true,
                 stroke: 'transparent',
-                strokeDasharray: '10, 5',
+                strokeDasharray: '5, 10',
                 strokeWidth: 4,
                 fill: 'none',
             },
@@ -100,8 +113,7 @@ function defineRedecoratedLink(attrsysLink) {
         }, {
             tagName: 'path',
             selector: 'lineError',
-        }]
-    }, {
+        },],
         showErrorHighlighting(area) {
             this.prop('attrs/lineError/stroke', ERROR_DARK_RED);
         },
@@ -113,17 +125,32 @@ function defineRedecoratedLink(attrsysLink) {
 
 
 /**
- * Projected link between attributes
- * @returns new AttributeLink object
+ * Redecorated link between attributes
+ * @returns new RedecoratedLink object
  */
-function defineProjectedLink(attrsysLink) {
+function defineRedecoratedLink(acyclicityLink) {
 
-    return attrsysLink.define('attrsys.ProjectedLink', {
+    return acyclicityLink.define('attrsys.RedecoratedLink', {
+        attrs: {
+            line: {
+                stroke: '#46bb00ee',
+            },
+        },
+    });
+}
+
+
+/**
+ * Projected link between attributes
+ * @returns new ProjectedLink object
+ */
+function defineProjectedLink(acyclicityLink) {
+
+    return acyclicityLink.define('attrsys.ProjectedLink', {
         router: {name: 'manhattan'},
         attrs: {
             line: {
                 stroke: '#ffbf00ee',
-                strokeWidth: 4,
             },
         },
     });

@@ -189,7 +189,7 @@ function checkAttributeLinks(symbolIndex, actualAttributeNode, expectedAttribute
     const actualOutgoingLinks = jointGraph.getConnectedLinks(actualAttributeNode, {outbound: true});
 
     for (const actualOutgoingLink of actualOutgoingLinks) {
-        // no need to check for id existence, because links must point to a node by the settings
+        // no need to check for id existence, because links must point to a node by the graph settings
         const actualLinkTargetId = actualOutgoingLink.get('target').id;
 
         const actualTargetAttributeNode = jointGraph.getCell(actualLinkTargetId);

@@ -242,11 +242,11 @@ function setFunctionForShowErrorsButton(productionRuleIndex) {
 
 
 function showGraphCorrectIcon(productionRuleIndex) {
-    $(`.graphCorrectCheck[data-index=${productionRuleIndex}]`).show();
+    $(`.dependencyGraphCorrectIcon[data-index=${productionRuleIndex}]`).show();
 }
 
 export function hideGraphCorrectIcon(productionRuleIndex) {
-    $(`.graphCorrectCheck[data-index=${productionRuleIndex}]`).hide();
+    $(`.dependencyGraphCorrectIcon[data-index=${productionRuleIndex}]`).hide();
 }
 
 export function resetErrors(graphIndex) {
@@ -260,16 +260,16 @@ function clearErrorHighlighting(graphIndex) {
 }
 
 export function clearAndHideGraphErrorsList(graphIndex) {
-    $('.graphErrors[data-index=' + graphIndex + ']').hide();
-    $('.graphErrorMessages[data-index=' + graphIndex + ']').empty();
+    $(`.graphErrors[data-index=${graphIndex}]`).hide();
+    $(`.graphErrorMessages[data-index=${graphIndex}]`).empty();
 }
 
 function addGraphErrors(graphIndex, graphErrors) {
 
-    const graphErrorMessagesList = $('.graphErrorMessages[data-index=' + graphIndex + ']');
+    const graphErrorMessagesList = $(`.graphErrorMessages[data-index=${graphIndex}]`);
 
     for (const error of graphErrors) {
-        graphErrorMessagesList.append('<li>' + error + '</li>');
+        graphErrorMessagesList.append(`<li>${error}</li>`);
     }
 }
 
@@ -284,15 +284,15 @@ function showEitherErrorButtonOrCorrectIcon(graphIndex, graphErrors) {
 }
 
 function hideGraphErrorsButton(graphIndex) {
-    $('.showGraphErrorsBtn[data-index=' + graphIndex + ']').hide();
+    $(`.showGraphErrorsBtn[data-index=${graphIndex}]`).hide();
 }
 
 function showToggleGraphErrorsBtn(graphIndex) {
-    $('.showGraphErrorsBtn[data-index=' + graphIndex + ']').show();
+    $(`.showGraphErrorsBtn[data-index=${graphIndex}]`).show();
 }
 
 function toggleGraphErrorsVisibility(graphIndex) {
-    $('.graphErrors[data-index=' + graphIndex + ']').fadeToggle(100);
+    $(`.graphErrors[data-index=${graphIndex}]`).fadeToggle(100);
 }
 
 

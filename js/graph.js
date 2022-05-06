@@ -33,9 +33,11 @@ export class Graph {
 
     /**
      * Return the children of the root, sorted by their x coordinate, from left to right.
+     * After sorting, assign to the nodes of the syntax tree the corresponding indexes.
      */
     getChildrenSortedByX(root) {
 
+        root.setIndex(0);
         const links = this.graph.getConnectedLinks(root, {outbound: true});
 
         let children = links.map(l => {
@@ -43,7 +45,11 @@ export class Graph {
             return this.graph.getCell(targetId);
         })
 
-        return children.sort((a, b) => a.position().x - b.position().x);
+        children
+            .sort((a, b) => a.position().x - b.position().x)
+            .forEach((symbol, index) => symbol.setIndex(index + 1));
+
+        return children;
     }
 
     /**
@@ -79,6 +85,10 @@ export class Graph {
         this.paper.translate(0, 0);
     }
 
+    disable() {
+        this.paper.options.disabled = true;
+    }
+
 
     #createPaper(graph, graphContainer, namespace) {
         return new joint.dia.Paper({
@@ -92,6 +102,7 @@ export class Graph {
             background: {
                 color: '#fdfdfd',
             },
+            disabled: false,
 
             // Highlights a shape which is about to be connected by a link
             highlighting: {
@@ -335,12 +346,27 @@ export class AcyclicityGraph extends Graph {
         super(graphContainer, grammar, productionIndex);
 
         // this.paper.setInteractivity(false);
-        this.paper.options.interactive = function (cellView) {
-            return cellView.model.get('type') === 'attrsys.RedecoratedLink' ||
-                cellView.model.get('type') === 'attrsys.ProjectedLink';
-        };
+        // this.paper.options.interactive = function (cellView) {
+        //     return (cellView.model.get('type') === 'attrsys.RedecoratedLink'
+        //             || cellView.model.get('type') === 'attrsys.ProjectedLink')
+        //         && !this.frozen;
+        // };
+        this.#setPaperInteractivity(this.paper);
         this.#setPaperDefaultLinks(linkTypeInputName);
         this.#defineOnPaperEvents(this.paper, this.graph, graphContainer, grammar, productionIndex);
+    }
+
+    disable() {
+        super.disable();
+        this.#removeOnPaperEvents();
+    }
+
+    #setPaperInteractivity(paper) {
+        paper.options.interactive = function (cellView) {
+            return (cellView.model.get('type') === 'attrsys.RedecoratedLink' ||
+                    cellView.model.get('type') === 'attrsys.ProjectedLink')
+                && !paper.options.disabled;
+        };
     }
 
     #setPaperDefaultLinks(linkTypeInputName) {
@@ -416,5 +442,9 @@ export class AcyclicityGraph extends Graph {
                 model.remove();
             }
         }
+    }
+
+    #removeOnPaperEvents() {
+        this.paper.off();
     }
 }

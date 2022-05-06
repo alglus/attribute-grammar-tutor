@@ -1,4 +1,4 @@
-import {ERROR, textIsEmpty} from './utils.js';
+import {disable, enable, ERROR, textIsEmpty} from './utils.js';
 import {Grammar} from './grammar.js';
 import {
     createLocalDependencyExercise,
@@ -87,19 +87,19 @@ function clearGrammarErrorMessages() {
 
 
 function enableApplyButton() {
-    $('#applyGrammarButton').prop('disabled', false);
+    enable($('#applyGrammarButton'));
 }
 
 function disableApplyButton() {
-    $('#applyGrammarButton').prop('disabled', true);
+    disable($('#applyGrammarButton'));
 }
 
 function enableEditButton() {
-    $('#editGrammarButton').prop('disabled', false);
+    enable($('#editGrammarButton'));
 }
 
 function disableEditButton() {
-    $('#editGrammarButton').prop('disabled', true);
+    disable($('#editGrammarButton'));
 }
 
 function enableGrammarInput() {
