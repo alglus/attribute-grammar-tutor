@@ -28,10 +28,11 @@ export class Grammar {
     #allNonterminalNames = new Set();
     #allAttributeNames = new Set();
     #attributesBySymbol = new Map();
-    #nonterminals = new Map();
+    #nonterminals = new IndexedMap();
     #productionRules = [];
     #errors = [];
     #numberOfElementsPerRule = [];
+    #iterationStable = ['no', 'no', 'no','yes']; // TODO
 
 
     constructor(grammarText) {
@@ -65,6 +66,7 @@ export class Grammar {
         this.#computeTerminals();
 
         this.#computeStrongAcyclicityIterations();
+        console.log(this.nonterminals)
     }
 
 
@@ -144,7 +146,8 @@ export class Grammar {
 
         if (!this.#nonterminals.has(nonterminalName)) {
 
-            this.#nonterminals.set(nonterminalName, new Nonterminal(nonterminalName));
+            // this.#nonterminals.set(nonterminalName, new Nonterminal(nonterminalName));
+            this.#nonterminals.add(nonterminalName, new Nonterminal(nonterminalName));
         }
     }
 
@@ -459,7 +462,7 @@ export class Grammar {
 
                     // By traversing the graph with DFS, we came back to the attribute, where we started.
                     if (symbolIndex === dependency.toSymbolIndex && attribute.name === targetAttribute.name) {
-                        productionRule.iterations[iterationNumber].cycleFound = true;
+                        productionRule.iterations[iterationNumber].cycleFound = 'yes';
                         break;
                     }
 
@@ -542,6 +545,10 @@ export class Grammar {
         return this.#errors;
     }
 
+    get nonterminals() {
+        return this.#nonterminals;
+    }
+
     get productionRules() {
         return this.#productionRules;
     }
@@ -560,6 +567,10 @@ export class Grammar {
 
     get numberOfElementsPerRule() {
         return this.#numberOfElementsPerRule;
+    }
+
+    get iterationStable() {
+        return this.#iterationStable;
     }
 }
 
@@ -825,13 +836,19 @@ class Dependency {
         return this.sourceHash() + this.targetHash();
     }
 
+    toRelationString() {
+        return `(${this.fromAttributeName},${this.toAttributeName})`;
+    }
+
     toString() {
         return `${this.fromAttributeName}_${this.fromAttributeIndexInsideSymbol}[${this.fromSymbolIndex}]` +
             ` -> ${this.toAttributeName}_${this.toAttributeIndexInsideSymbol}[${this.toSymbolIndex}]`;
     }
 }
 
-
+/**
+ * Nonterminal class
+ */
 class Nonterminal {
 
     name;
@@ -866,13 +883,11 @@ class Nonterminal {
     #currentIterationObjectNotYetCreated(currentIterationIndex) {
         return currentIterationIndex === this.iterations.length;
     }
-
-    toString() {
-
-    }
 }
 
-
+/**
+ * Nonterminal iteration class
+ */
 class NonterminalIteration {
 
     static empty = new NonterminalIteration();
@@ -881,12 +896,14 @@ class NonterminalIteration {
     transitiveRelations = new Map();
 }
 
-
+/**
+ * Production rule iteration class
+ */
 class ProductionRuleIteration {
 
     static empty = new ProductionRuleIteration();
 
-    cycleFound = false;
+    cycleFound = 'no';
     rootProjections = new Map();
     redecoratedRelations = new Map();
 

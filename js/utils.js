@@ -20,7 +20,10 @@ export function splitIntoWords(text) {
 
 export function replaceMultipleWhiteSpacesByOne(text) {
     return text.replace(/[ \t]+/g, ' ')
+}
 
+export function removeAllWhiteSpaces(text) {
+    return text.replace(/\s+/g, '');
 }
 
 export function containsAny(string, substringsArray) {
@@ -108,6 +111,23 @@ export function parameterHasBeenSpecified(parameter) {
 // Returns a random number between 0 (inclusive) and max (exclusive).
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
+}
+
+export function cloneElementAndSetNewAttributeValue(elementToBeCloned, attributeNames, newAttributeValues) {
+    const newElement = elementToBeCloned.clone();
+
+    for (let i = 0; i < attributeNames.length; i++) {
+
+        // Change the attribute value of the new element.
+        newElement.attr(attributeNames[i], newAttributeValues[i]);
+
+        // Change the attribute value for all children (which have it) of the new element.
+        newElement.find(`[${attributeNames[i]}]`).each(function () {
+            $(this).attr(attributeNames[i], newAttributeValues[i]);
+        });
+    }
+
+    return newElement;
 }
 
 

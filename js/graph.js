@@ -1,13 +1,13 @@
 import {emptyArray} from './utils.js';
-import {hideGraphCorrectIcon, resetErrors} from './dependenciesGraphButtons.js';
-import {SYMBOL_HEIGHT, SYMBOL_WIDTH} from "./joint.attrsys.js";
+import {GRAPH_TYPE} from "./drawDependencyGraph.js";
+import {newSymbol, SYMBOL_HEIGHT, SYMBOL_WIDTH} from "./joint.attrsys.js";
+import {hideGraphCorrectIcon, resetErrors} from './localDependencyExercise.js';
 
-export const MIN_SCALE = 0.2;
-export const MAX_SCALE = 5;
 
-export class DependenciesGraph {
+export class Graph {
 
-    static allGraphs = [];
+    static MIN_SCALE = 0.2;
+    static MAX_SCALE = 5;
 
     highlightedElements = [];
 
@@ -17,7 +17,6 @@ export class DependenciesGraph {
         this.graph = new joint.dia.Graph({}, {cellNamespace: namespace});
         this.paper = this.#createPaper(this.graph, graphContainer, namespace);
 
-        this.#defineOnGraphEvents(this.graph, productionIndex);
         this.#defineOnPaperEvents(this.paper, this.graph, graphContainer, grammar, productionIndex);
     }
 
@@ -48,7 +47,7 @@ export class DependenciesGraph {
     }
 
     /**
-     * Returns all symbol nodes, which are the nodes of the syntax tree.
+     * Returns all symbol nodes, i.e. the nodes of the syntax tree.
      */
     getSymbols() {
         return this.graph.getElements().filter(e => e.isSymbol());
@@ -60,19 +59,19 @@ export class DependenciesGraph {
         this.highlightedElements.push({element: element, highlightingArea: highlightingArea});
     }
 
+    removeAllHighlighting() {
+        this.highlightedElements.forEach(highlightedElement => {
+            this.unhighlightElement(highlightedElement.element, highlightedElement.highlightingArea);
+        });
+        this.clearHighlightedElementsList();
+    }
+
     unhighlightElement(element, highlightingArea) {
         element.hideErrorHighlighting(highlightingArea);
     }
 
     clearHighlightedElementsList() {
         emptyArray(this.highlightedElements);
-    }
-
-    removeAllHighlighting() {
-        this.highlightedElements.forEach(highlightedElement => {
-            this.unhighlightElement(highlightedElement.element, highlightedElement.highlightingArea);
-        });
-        this.clearHighlightedElementsList();
     }
 
     resetScale() {
@@ -109,14 +108,6 @@ export class DependenciesGraph {
                 }
             },
 
-            defaultLink: function (cellView) {
-                if (cellView.model.isSymbol()) {
-                    return new joint.shapes.attrsys.SymbolLink();
-                } else {
-                    return new joint.shapes.attrsys.AttributeLink();
-                }
-            },
-
             validateConnection: function (cellViewS, magnetS, cellViewT) {
                 // Prevent Link to Link connections
                 if (cellViewT.model.isLink() || cellViewS.model.isLink()) return false;
@@ -136,9 +127,74 @@ export class DependenciesGraph {
         });
     }
 
+    #defineOnPaperEvents(paper, graph, graphContainer, grammar, productionIndex) {
+        paper.on({
+            /* Zoom */
+            'blank:mousewheel': function (event, x, y, delta) {
+                zoom(event, x, y, delta, paper);
+            },
 
-    #defineOnGraphEvents(graph, productionIndex) {
-        graph.on({
+
+            /* Panning */
+            // Code for panning the graph found here:
+            // https://stackoverflow.com/questions/28431384/how-to-make-a-paper-draggable#36151768
+            'blank:pointerdown': function (event, x, y) {
+                event.data = {};
+
+                const scale = paper.scale();
+                event.data.dragStartPosition = {x: x * scale.sx, y: y * scale.sy};
+            },
+            'blank:pointermove': function (event) {
+                paper.translate(
+                    event.offsetX - event.data.dragStartPosition.x,
+                    event.offsetY - event.data.dragStartPosition.y
+                );
+            },
+            'blank:pointerup': function (event) {
+                event.data.dragStartPosition = {};
+            },
+        });
+
+
+        // Code for zooming in and out found here:
+        // https://stackoverflow.com/questions/56385868/mouse-wheel-event-has-jittery-zoom-scale-in-jointjs#69196310
+        function zoom(event, x, y, delta) {
+            event.preventDefault();
+
+            const currentScale = paper.scale().sx; // we scale symmetrically, so it is enough to get the x-scale
+            const newScale = currentScale + (0.2 * delta * currentScale)
+
+            if (newScale >= Graph.MIN_SCALE && newScale <= Graph.MAX_SCALE) {
+                paper.scale(newScale, newScale, 0, 0);
+                paper.translate(-x * newScale + event.offsetX, -y * newScale + event.offsetY);
+            }
+        }
+    }
+}
+
+
+export class DependencyGraph extends Graph {
+
+    constructor(graphContainer, grammar, productionIndex) {
+        super(graphContainer, grammar, productionIndex);
+
+        this.#setPaperDefaultLinks();
+        this.#defineOnGraphEvents(productionIndex);
+        this.#defineOnPaperEvents(this.paper, this.graph, graphContainer, grammar, productionIndex);
+    }
+
+    #setPaperDefaultLinks() {
+        this.paper.options.defaultLink = function (cellView) {
+            if (cellView.model.isSymbol()) {
+                return new joint.shapes.attrsys.SymbolLink();
+            } else {
+                return new joint.shapes.attrsys.AttributeLink();
+            }
+        };
+    }
+
+    #defineOnGraphEvents(productionIndex) {
+        this.graph.on({
             'remove': function (cell) {
                 resetErrors(productionIndex);
                 hideGraphCorrectIcon(productionIndex);
@@ -163,10 +219,7 @@ export class DependenciesGraph {
 
     #defineOnPaperEvents(paper, graph, graphContainer, grammar, productionIndex) {
         paper.on({
-            /* Zoom */
-            'blank:mousewheel': function (event, x, y, delta) {
-                zoom(event, x, y, delta, paper);
-            },
+            /* Toggle cell name */
             'cell:mousewheel': function (cellView, event, x, y, delta) {
                 event.preventDefault(); // stop the page from scrolling, when over some graph node
 
@@ -185,30 +238,9 @@ export class DependenciesGraph {
             },
 
 
-            /* Panning */
-            // Code for panning the graph found here:
-            // https://stackoverflow.com/questions/28431384/how-to-make-a-paper-draggable#36151768
-            'blank:pointerdown': function (event, x, y) {
-                event.data = {};
-
-                const scale = paper.scale();
-                event.data.dragStartPosition = {x: x * scale.sx, y: y * scale.sy};
-            },
-            'blank:pointermove': function (event) {
-                paper.translate(
-                    event.offsetX - event.data.dragStartPosition.x,
-                    event.offsetY - event.data.dragStartPosition.y
-                );
-            },
-            'blank:pointerup': function (event) {
-                event.data.dragStartPosition = {};
-            },
-
-
             /* Create new element */
             'blank:pointerdblclick': function (event, x, y) {
-                joint.shapes.attrsys.Symbol.create(
-                    x - SYMBOL_WIDTH / 2, y - SYMBOL_HEIGHT / 2,
+                newSymbol(GRAPH_TYPE.localDependency, x - SYMBOL_WIDTH / 2, y - SYMBOL_HEIGHT / 2,
                     grammar.productionRules[productionIndex].symbolNames, paper, graph);
             },
 
@@ -261,7 +293,7 @@ export class DependenciesGraph {
                     removeCell(elementView.model);
                 }
 
-
+                /* Move container together with symbol */
                 if (elementView.model.isSymbol()) {
                     paper.setInteractivity({stopDelegation: false});
                 }
@@ -286,19 +318,95 @@ export class DependenciesGraph {
         });
 
 
-        // Code for zooming in and out found here:
-        // https://stackoverflow.com/questions/56385868/mouse-wheel-event-has-jittery-zoom-scale-in-jointjs#69196310
-        function zoom(event, x, y, delta) {
-            event.preventDefault();
-
-            const currentScale = paper.scale().sx; // we scale symmetrically, so it is enough to get the x-scale
-            const newScale = currentScale + (0.2 * delta * currentScale)
-
-            if (newScale >= MIN_SCALE && newScale <= MAX_SCALE) {
-                paper.scale(newScale, newScale, 0, 0);
-                paper.translate(-x * newScale + event.offsetX, -y * newScale + event.offsetY);
+        function removeCell(model) {
+            if (model.get('type') === 'attrsys.Symbol') {
+                model.getContainer().remove();
+            } else {
+                model.remove();
             }
         }
+    }
+}
+
+
+export class AcyclicityGraph extends Graph {
+
+    constructor(graphContainer, grammar, productionIndex, linkTypeInputName) {
+        super(graphContainer, grammar, productionIndex);
+
+        // this.paper.setInteractivity(false);
+        this.paper.options.interactive = function (cellView) {
+            return cellView.model.get('type') === 'attrsys.RedecoratedLink' ||
+                cellView.model.get('type') === 'attrsys.ProjectedLink';
+        };
+        this.#setPaperDefaultLinks(linkTypeInputName);
+        this.#defineOnPaperEvents(this.paper, this.graph, graphContainer, grammar, productionIndex);
+    }
+
+    #setPaperDefaultLinks(linkTypeInputName) {
+        this.paper.options.defaultLink = function (cellView) {
+
+            const linkType = $(`input[name=${linkTypeInputName}]:checked`).val();
+
+            if (linkType === 'redecorated') {
+                return new joint.shapes.attrsys.RedecoratedLink();
+            } else {
+                return new joint.shapes.attrsys.ProjectedLink();
+            }
+        };
+    }
+
+    #defineOnPaperEvents(paper, graph, graphContainer, grammar, productionIndex) {
+        paper.on({
+            /* Add and remove link tools */
+            // The link tools need to be created and removed each time, as opposed to just being shown/hidden in the elements.
+            'link:mouseenter': function (linkView) {
+                if (linkView.model.get('type') === 'attrsys.RedecoratedLink' ||
+                    linkView.model.get('type') === 'attrsys.ProjectedLink') {
+
+                    linkView.addTools(new joint.dia.ToolsView({tools: linkView.model.getTools()}));
+                }
+            },
+            'link:mouseleave': function (linkView) {
+                linkView.removeTools();
+            },
+
+
+            /* Show and hide element tools */
+            'element:mouseenter': function (elementView) {
+                if (elementView.model.isAttribute()) {
+                    elementView.showTools();
+                }
+            },
+            'element:mouseleave': function (elementView) {
+                elementView.hideTools();
+            },
+
+
+            /* Handle key press */
+            'cell:mouseenter': function (cellView) {
+                if (cellView.model.get('type') === 'attrsys.RedecoratedLink' ||
+                    cellView.model.get('type') === 'attrsys.ProjectedLink') {
+                    graphContainer
+                        .attr('tabindex', 0)
+                        .on('mouseover', function () {
+                            this.focus();
+                        })
+                        .on('keydown', function (e) {
+                            /* Delete element or link with 'del', when hovering over it */
+                            if (e.which === 46) {
+                                removeCell(cellView.model);
+                            }
+                        });
+                }
+            },
+            'cell:mouseleave': function (cellView) {
+                graphContainer
+                    .attr('tabindex', 1)
+                    .off('mouseover')
+                    .off('keydown');
+            },
+        });
 
 
         function removeCell(model) {
@@ -310,4 +418,3 @@ export class DependenciesGraph {
         }
     }
 }
-

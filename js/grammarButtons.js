@@ -1,7 +1,17 @@
 import {ERROR, textIsEmpty} from './utils.js';
 import {Grammar} from './grammar.js';
-import {createDependenciesGraphs, emptyDependenciesGraphsArray, removeAllGraphs} from './dependenciesGraphButtons.js';
+import {
+    createLocalDependencyExercise,
+    deleteLocalDependencyExercise,
+    showLocalDependencyExercise,
+} from './localDependencyExercise.js';
 import {grammarInput} from "./init.js";
+import {
+    createStrongAcyclicityExercise,
+    deleteStrongAcyclicityExercise,
+    showStrongAcyclicityExercise
+} from "./strongAcyclicityExercise.js";
+import {defineJointAttrsysObjects} from "./joint.attrsys.js";
 
 
 export function applyGrammar(grammarText) {
@@ -14,20 +24,27 @@ export function applyGrammar(grammarText) {
 
     const grammar = grammarParsingResult;
 
-    enableDisableGrammarElementsAfterApplyingGrammar();
+    defineJointAttrsysObjects(grammar);
 
-    createDependenciesGraphs(grammar);
+    disableApplyButton();
+    enableEditButton();
+    disableGrammarInput();
 
-    showDependenciesExercise();
+    createLocalDependencyExercise(grammar);
+    showLocalDependencyExercise();
+
+    createStrongAcyclicityExercise(grammar);
+    showStrongAcyclicityExercise();
 }
 
 
 export function editGrammar() {
-    enableDisableGrammarElementsInOrderToEditGrammar();
+    enableApplyButton();
+    disableEditButton();
+    enableGrammarInput();
 
-    hideDependenciesExerciseAndDeleteDependenciesGraphClones();
-
-    emptyDependenciesGraphsArray();
+    deleteLocalDependencyExercise();
+    deleteStrongAcyclicityExercise();
 }
 
 
@@ -69,51 +86,38 @@ function clearGrammarErrorMessages() {
 }
 
 
-function enableDisableGrammarElementsAfterApplyingGrammar() {
-    grammarInput.setOption('readOnly', true);
-    grammarInput.getDoc().eachLine((line) => {
-        grammarInput.getDoc().addLineClass(line, 'wrap', 'disabledText')
-    })
+function enableApplyButton() {
+    $('#applyGrammarButton').prop('disabled', false);
+}
 
+function disableApplyButton() {
     $('#applyGrammarButton').prop('disabled', true);
+}
+
+function enableEditButton() {
     $('#editGrammarButton').prop('disabled', false);
 }
 
-
-function enableDisableGrammarElementsInOrderToEditGrammar() {
-    grammarInput.setOption('readOnly', false);
-    grammarInput.getDoc().eachLine((line) => {
-        grammarInput.getDoc().removeLineClass(line, 'wrap', 'disabledText')
-    })
-
-    $('#applyGrammarButton').prop('disabled', false);
+function disableEditButton() {
     $('#editGrammarButton').prop('disabled', true);
 }
 
+function enableGrammarInput() {
+    // Set input as editable.
+    grammarInput.setOption('readOnly', false);
 
-function showDependenciesExercise() {
-    $('#dependenciesExercise').slideDown('fast');
-
-    // If the dependencies exercise has been collapsed before clicking the edit button, then it will stay collapsed
-    // after pressing ApplyGrammar again. In order to prevent this, we check if the exercise was collapsed by searching
-    // for the corresponding class and then 'manually clicking' that button to open the accordion.
-    $('#dependenciesCollapseBtn.collapsed').click();
+    // Change the text colour back to black.
+    grammarInput.getDoc().eachLine((line) => {
+        grammarInput.getDoc().removeLineClass(line, 'wrap', 'disabledText')
+    });
 }
 
+function disableGrammarInput() {
+    // Set input as non-editable.
+    grammarInput.setOption('readOnly', true);
 
-function hideDependenciesExerciseAndDeleteDependenciesGraphClones() {
-    $('#dependenciesExercise').hide();
-    removeAllGraphs();
-    $('.dependenciesGraphCard').not(':first').remove();
-
-    $('.dependenciesCheckBtn').off('click');
-    $('.dependenciesResetBtn').off('click');
-    $('.dependenciesDrawBtn').off('click');
-    $('.dependenciesSolutionBtn').off('click');
-    $('.dependenciesRecenterBtn').off('click');
-    $('.showGraphErrorsBtn').off('click');
-
-    $('#dependenciesCheckAllBtn').off('click');
-    $('#dependenciesDrawAllBtn').off('click');
-    $('#dependenciesAllSolutionsBtn').off('click');
+    // Change the text colour to light grey.
+    grammarInput.getDoc().eachLine((line) => {
+        grammarInput.getDoc().addLineClass(line, 'wrap', 'disabledText')
+    });
 }
