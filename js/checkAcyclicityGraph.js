@@ -79,7 +79,7 @@ export function checkCycleFound(grammar, actualAnswer, nonterminalIndex, product
     const expectedAnswer = grammar.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].cycleFound;
 
     if (actualAnswer !== expectedAnswer) {
-        const questionSelector = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}][data-iteration=${iterationIndex}] p`);
+        const questionSelector = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}][data-iteration=${iterationIndex}] p`);
         highlightTextAsError(questionSelector);
         addTooltip(questionSelector, 'Try building for every attribute all possible transitive relations and see, whether a cycle is formed.');
         return ERROR;
@@ -198,7 +198,7 @@ export function checkAcyclicityGraph(grammar, graphObject, nonterminalIndex, pro
     }
 
     if (!setIsEmpty(errorMessages)) {
-        const warningIcon = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}][data-iteration=${iterationIndex}] > svg.acyclicityWarningIcon`);
+        const warningIcon = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}][data-iteration=${iterationIndex}] > svg.acyclicityWarningIcon`);
         addHTMLTooltip(warningIcon, errorMessages);
         warningIcon.show();
         return ERROR;

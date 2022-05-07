@@ -70,9 +70,9 @@ export function createStrongAcyclicityExercise(grammar) {
 
         const nonterminal = grammar.nonterminals.getAt(nonterminalIndex);
 
-        if (nonterminalIndex > 0) {
+        // if (nonterminalIndex > 0) {
             cloneNonterminalContainer(nonterminalIndex);
-        }
+        // }
 
         setNonterminalTitle(nonterminal, nonterminalIndex);
 
@@ -87,7 +87,7 @@ export function createStrongAcyclicityExercise(grammar) {
 
 function cloneNonterminalContainer(newNonterminalIndex) {
 
-    const templateNonterminalContainerHTML = $('.acyclicityNonterminalContainer[data-nonterminal=0]');
+    const templateNonterminalContainerHTML = $('.acyclicityNonterminalContainer[data-nonterminal="-1"]');
     const newNonterminalContainerHTML = cloneElementAndSetNewAttributeValue(templateNonterminalContainerHTML, ['data-nonterminal'], [newNonterminalIndex]);
 
     const acyclicityFooter = $('#acyclicityFooterContainer');
@@ -104,9 +104,9 @@ function createProductionRuleContainers(nonterminal, nonterminalIndex) {
 
         acyclicityGraphs[nonterminalIndex].push([]); // Add arrays for the iterations.
 
-        if (productionRuleIndex > 0) {
+        // if (productionRuleIndex > 0) {
             cloneProductionRuleContainer(productionRuleIndex, nonterminalIndex);
-        }
+        // }
 
         const productionRule = nonterminal.productionRules[productionRuleIndex];
 
@@ -116,15 +116,15 @@ function createProductionRuleContainers(nonterminal, nonterminalIndex) {
 
 function cloneProductionRuleContainer(newProductionRuleIndex, nonterminalIndex) {
 
-    const templateProductionRuleContainerHTML = $(`.acyclicityProductionRule[data-nonterminal='${nonterminalIndex}'][data-productionRule='0']`);
-    const newProductionRuleContainerHTML = cloneElementAndSetNewAttributeValue(templateProductionRuleContainerHTML, ['data-productionRule'], [newProductionRuleIndex]);
+    const templateProductionRuleContainerHTML = $(`.acyclicityProductionRule[data-nonterminal='${nonterminalIndex}'][data-production='-1']`);
+    const newProductionRuleContainerHTML = cloneElementAndSetNewAttributeValue(templateProductionRuleContainerHTML, ['data-production'], [newProductionRuleIndex]);
 
     const elementAfterAllProductionRules = $(`.acyclicityTransitiveRelationsContainer[data-nonterminal=${nonterminalIndex}]`);
     newProductionRuleContainerHTML.insertBefore(elementAfterAllProductionRules);
 }
 
 function setProductionRuleTitle(productionRule, productionRuleIndex, nonterminalIndex) {
-    $(`.acyclicityProductionRuleText[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}]`)
+    $(`.acyclicityProductionRuleText[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}]`)
         .html(productionRule.toString());
 }
 
@@ -192,15 +192,15 @@ function addGraphCards(grammar, nonterminal, nonterminalIndex, iterationIndex) {
 
 function cloneProductionRuleCard(nonterminalIndex, productionRuleIndex, newIterationIndex) {
 
-    const templateProductionRuleCardHTML = $(`.acyclicityGraphCardContainer[data-nonterminal='${nonterminalIndex}'][data-productionRule=${productionRuleIndex}][data-iteration='-1']`);
+    const templateProductionRuleCardHTML = $(`.acyclicityGraphCardContainer[data-nonterminal='${nonterminalIndex}'][data-production=${productionRuleIndex}][data-iteration='-1']`);
     const newProductionRuleCardHTML = cloneElementAndSetNewAttributeValue(templateProductionRuleCardHTML, ['data-iteration'], [newIterationIndex]);
 
-    const elementBeforeAllProductionCards = $(`.acyclicityGraphsRow[data-nonterminal='${nonterminalIndex}'][data-productionRule=${productionRuleIndex}]`);
+    const elementBeforeAllProductionCards = $(`.acyclicityGraphsRow[data-nonterminal='${nonterminalIndex}'][data-production=${productionRuleIndex}]`);
     elementBeforeAllProductionCards.append(newProductionRuleCardHTML);
 }
 
 function addGraph(grammar, nonterminalIndex, productionRuleIndex, iterationIndex) {
-    const graphContainer = $(`.acyclicityGraph[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}][data-iteration=${iterationIndex}]`);
+    const graphContainer = $(`.acyclicityGraph[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}][data-iteration=${iterationIndex}]`);
 
     const linkTypeInputName = `linkType_${nonterminalIndex}_${productionRuleIndex}_${iterationIndex}`;
     const graph = new AcyclicityGraph(graphContainer, grammar, productionRuleIndex, linkTypeInputName);
@@ -214,7 +214,7 @@ function setLinkTypeRadioButtonsIdAndName(linkType, nonterminalIndex, production
     const newId = `linkType${linkType}_${nonterminalIndex}_${productionRuleIndex}_${iterationIndex}`;
     const newName = `linkType_${nonterminalIndex}_${productionRuleIndex}_${iterationIndex}`;
 
-    const linkTypeSelector = `.linkType${linkType}[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}][data-iteration=${iterationIndex}]`;
+    const linkTypeSelector = `.linkType${linkType}[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}][data-iteration=${iterationIndex}]`;
 
     $(`${linkTypeSelector} > input`).attr({'id': newId, 'name': newName});
     $(`${linkTypeSelector} > label`).attr('for', newId);
@@ -225,7 +225,7 @@ function setCycleFoundRadioButtonsIdAndName(yesNo, nonterminalIndex, productionR
     const newId = `cycleFound${yesNo}_${nonterminalIndex}_${productionRuleIndex}_${iterationIndex}`;
     const newName = `cycleFound_${nonterminalIndex}_${productionRuleIndex}_${iterationIndex}`;
 
-    const cycleFoundSelector = `.cycleFound${yesNo}[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}][data-iteration=${iterationIndex}]`;
+    const cycleFoundSelector = `.cycleFound${yesNo}[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}][data-iteration=${iterationIndex}]`;
 
     $(`${cycleFoundSelector} > input`).attr({'id': newId, 'name': newName});
     $(`${cycleFoundSelector} > label`).attr('for', newId);
@@ -362,14 +362,14 @@ function waitForScrollToEndAndThenScrollIntoView(objectToScroll, scrollSelector)
 }
 
 function scrollToFarRight(scrollSelector) {
-
     const allScrollElements = $(scrollSelector);
-    const widthOfFirstHeader = $('.acyclicityIterationHeaderContainer').width();
+
+    // Take a very large width, to make sure we definitely scroll to the very far right.
+    const width = $(window).width() * 100;
 
     allScrollElements.each(function () {
-        // Take a very large width, to make sure we definitely scroll to the very far right.
-        $(this).scrollLeft(widthOfFirstHeader * 100);
-    })
+        $(this).scrollLeft(width);
+    });
 }
 
 
@@ -410,7 +410,7 @@ function checkIteration(grammar, iterationIndex) {
             if (graphCorrection === ERROR) errorFound = true;
 
             if (cycleFoundCorrection !== ERROR && graphCorrection !== ERROR) {
-                const graphCorrectIcon = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}][data-iteration=${iterationIndex}] > svg.acyclicityGraphCorrectIcon`)
+                const graphCorrectIcon = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}][data-iteration=${iterationIndex}] > svg.acyclicityGraphCorrectIcon`)
                 graphCorrectIcon.show();
             }
         }
@@ -420,7 +420,7 @@ function checkIteration(grammar, iterationIndex) {
         redFlashOnCheckButton(iterationIndex);
     }
 
-    if (!errorFound) {
+    if (errorFound) {
         setCheckButtonCorrect(iterationIndex);
         freezeIteration(grammar, iterationIndex);
 
