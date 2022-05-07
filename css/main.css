@@ -180,6 +180,15 @@ footer div {
     position: relative;
 }
 
+#shortcut {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    display: none;
+}
+
 #acyclicityExerciseNotEnabledWarning {
     width: 50%;
     position: absolute;

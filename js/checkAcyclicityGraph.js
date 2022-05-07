@@ -228,7 +228,7 @@ export function checkStrongAcyclicity() {
     clearCheckStrongAcyclicityErrors();
 
     const answer = $('input:radio[name=acyclic]:checked').val();
-    const expectedAnswer = 'yes'; // All questions are phrased so, that the answer is yes.
+    const expectedAnswer = 'yes'; // TODO: grammar....
 
     if (answer === undefined) {
         highlightRadioAsError($('#acyclicYes'));

@@ -115,8 +115,8 @@ function checkSymbolNameAndOutgoingLinks(symbolIndex, allSymbolNodes, graphError
     }
 
 
-    // Only check, that all children have no edges.
-    if (symbolIndex > 0) {
+    // Make sure that the children have no outgoing edges. Thus, start checking from symbol 1 onwards.
+    if (symbolIndex >= 1) {
 
         const links = graphObject.graph.getConnectedLinks(symbolNode, {outbound: true});
 
@@ -182,41 +182,40 @@ function checkAttributes(symbolIndex, allSymbolNodes, graphErrors, productionRul
 function checkAttributeLinks(symbolIndex, actualAttributeNode, expectedAttributes, graphErrors,
                              productionRule, jointGraph, graphObject) {
     const symbolName = productionRule.symbols[symbolIndex].name;
-    const attributeNodeName = actualAttributeNode.getName();
+    const attributeName = actualAttributeNode.getName();
 
 
-    const expectedOutgoingDependencies = expectedAttributes.get(attributeNodeName).getDependencyMap();
+    const expectedOutgoingDependencies = new Map(expectedAttributes.get(attributeName).dependencies);
     const actualOutgoingLinks = jointGraph.getConnectedLinks(actualAttributeNode, {outbound: true});
 
     for (const actualOutgoingLink of actualOutgoingLinks) {
+
         // no need to check for id existence, because links must point to a node by the graph settings
         const actualLinkTargetId = actualOutgoingLink.get('target').id;
 
         const actualTargetAttributeNode = jointGraph.getCell(actualLinkTargetId);
-        const actualTargetAttributeNodeName = actualTargetAttributeNode.getName();
-        const actualTargetSymbolNodeName = actualTargetAttributeNode.getSymbolNode().getName();
+        const actualTargetAttributeName = actualTargetAttributeNode.getName();
+        const actualTargetSymbolNode = actualTargetAttributeNode.getSymbolNode();
+        const actualTargetSymbolName = actualTargetSymbolNode.getName();
+        const actualTargetSymbolIndex = actualTargetSymbolNode.getIndex();
 
-        if (expectedOutgoingDependencies.has(actualTargetAttributeNodeName)) {
-            const expectedOutgoingDependency = expectedOutgoingDependencies.get(actualTargetAttributeNodeName);
-            const expectedTargetAttributeName = expectedOutgoingDependency.toAttributeName;
-            const expectedTargetSymbolName = productionRule.symbols[expectedOutgoingDependency.toSymbolIndex].name;
+        const actualRelationHash = `${symbolIndex}${attributeName}${actualTargetSymbolIndex}${actualTargetAttributeName}`;
 
-            if (actualTargetSymbolNodeName === expectedTargetSymbolName) {
-                expectedOutgoingDependencies.delete(actualTargetAttributeNodeName);
-            } else {
-                graphErrors.push(`Attribute "${attributeNodeName}" of node[${symbolIndex}] (symbol "${symbolName}") ` +
-                    `is correctly linked to attribute "${expectedTargetAttributeName}". However, it is an attribute ` +
-                    `of symbol "${actualTargetSymbolNodeName}", whereas it should be of symbol "${expectedTargetSymbolName}".`);
-                graphObject.highlightElement(actualOutgoingLink, HIGHLIGHT_AREA.default);
-            }
+        if (expectedOutgoingDependencies.has(actualRelationHash)) {
+
+            // A correct relation has been found, so we can delete it from the expected list.
+            expectedOutgoingDependencies.delete(actualRelationHash);
+
         } else {
-            graphErrors.push(`Attribute "${attributeNodeName}" of node[${symbolIndex}] (symbol "${symbolName}") ` +
-                `is wrongly linked to attribute "${actualTargetAttributeNodeName}".`);
+
+            graphErrors.push(`Attribute "${attributeName}" of node[${symbolIndex}] (symbol "${symbolName}") is wrongly linked` +
+                ` to attribute "${actualTargetAttributeName}" of node[${actualTargetSymbolIndex}] (symbol "${actualTargetSymbolName}").`);
             graphObject.highlightElement(actualOutgoingLink, HIGHLIGHT_AREA.default);
         }
     }
+
     for (const expectedOutgoingDependency of expectedOutgoingDependencies.values()) {
-        graphErrors.push(`Attribute "${attributeNodeName}" of node[${symbolIndex}] (symbol "${symbolName}") ` +
+        graphErrors.push(`Attribute "${attributeName}" of node[${symbolIndex}] (symbol "${symbolName}") ` +
             `is missing a dependency to attribute "${expectedOutgoingDependency.toAttributeName}".`);
         graphObject.highlightElement(actualAttributeNode, HIGHLIGHT_AREA.border);
     }

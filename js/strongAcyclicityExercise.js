@@ -140,6 +140,11 @@ function createStrongAcyclicityQuestion(grammar) {
     questionText.html(chooseOneAtRandom(questions));
 
     $('#acyclicityCheckButton').on('click', () => checkStrongAcyclicity());
+
+    $('#shortcut').on('click', () => {
+        showStrongAcyclicityQuestion();
+        scrollTo($('#strongAcyclicityQuestion'));
+    }).show();
 }
 
 
@@ -625,6 +630,8 @@ function hideStrongAcyclicityQuestion() {
     $('#acyclicNo').prop('checked', false);
     $('#strongAcyclicityQuestionText').empty();
     $('#congrats').hide().html('');
+    $('#shortcut').hide().off('click');
+    $('#acyclicityCheckButton').off('click');
 }
 
 function removeAllGraphs() {

@@ -115,9 +115,7 @@ function linkAttributes(graphObject, productionRule, attributeNodes) {
 
             const attribute = symbolAttributes.getAt(j);
 
-            for (let k = 0; k < attribute.dependencies.length; k++) {
-
-                const dependency = attribute.dependencies[k];
+            for (const dependency of attribute.dependencies.values()) {
 
                 const link = new joint.shapes.attrsys.AttributeLink();
 

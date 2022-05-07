@@ -32,7 +32,7 @@ export class Grammar {
     #productionRules = [];
     #errors = [];
     #numberOfElementsPerRule = [];
-    #iterationStable = ['no', 'no', 'no','yes']; // TODO
+    #iterationStable = ['no', 'no', 'no', 'yes']; // TODO
 
 
     constructor(grammarText) {
@@ -145,7 +145,6 @@ export class Grammar {
 
         if (!this.#nonterminals.has(nonterminalName)) {
 
-            // this.#nonterminals.set(nonterminalName, new Nonterminal(nonterminalName));
             this.#nonterminals.add(nonterminalName, new Nonterminal(nonterminalName));
         }
     }
@@ -183,7 +182,7 @@ export class Grammar {
             const leftAttribute = this.#parseLeftAttribute(lineNumber, equationHalves[0], attributeEquation, productionRule, attributeNameAndIndexMatcher);
             if (leftAttribute === ERROR) return;
 
-            // We can move on, without check, whether there was a parsing error of the right attribute, as we have done for the left one.
+            // We can move on without checking, whether there was a parsing error of the right attribute, as we have done for the left one.
             // This is because no further functions depend on the parsed values of the right attributes and so no runtime error can occur.
             // This way we parse as many attributes as possible, without aborting and can show more warnings to the user.
             this.#parseRightAttribute(lineNumber, equationHalves[1], attributeEquation, leftAttribute, productionRule, attributeNameAndIndexMatcher);
@@ -325,7 +324,7 @@ export class Grammar {
 
                     const attribute = symbol.attributes.getAt(attributeIndex);
 
-                    for (const dependency of attribute.dependencies) {
+                    for (const dependency of attribute.dependencies.values()) {
 
                         const toSymbol = productionRule.symbols[dependency.toSymbolIndex];
 
@@ -426,7 +425,7 @@ export class Grammar {
 
                     const attribute = symbol.attributes.getAt(relation.fromAttributeIndexInsideSymbol);
 
-                    if (attribute.doesNotYetHave(redecoratedRelation)) {
+                    if (!attribute.dependencies.has(redecoratedRelation)) {
 
                         attribute.addRedecoratedDependency(redecoratedRelation);
                         productionRule.iterations[iterationIndex].addRedecoratedRelation(redecoratedRelation);
@@ -668,9 +667,7 @@ class Symbol {
 
             if (parameterHasBeenSpecified(newDependency)) {
                 const existingAttribute = this.attributes.get(newAttribute.name);
-                if (existingAttribute.doesNotYetHave(newDependency)) {
-                    existingAttribute.addDependency(newDependency);
-                }
+                existingAttribute.addDependency(newDependency);
             }
         } else {
             if (parameterHasBeenSpecified(newDependency)) {
@@ -702,14 +699,14 @@ class Symbol {
  *
  * This relation is called dependency. Here we save the dependency only in the source attribute.
  * So if there is a dependency between attributes 'a' and 'b':
- * a -> b
+ *   a -> b
  * then attribute 'a' would store the dependency to 'b'. And attribute 'b' would not store this dependency.
  */
 class Attribute {
 
     name;
-    dependencies = [];
-    redecoratedDependencies = [];
+    dependencies = new Map();
+    redecoratedDependencies = []; // Used to calculate the transitive closure.
     indirectlyIdentified = false;
 
     constructor(name) {
@@ -717,19 +714,7 @@ class Attribute {
     }
 
     addDependency(newDependency) {
-        if (this.doesNotYetHave(newDependency)) {
-            this.dependencies.push(newDependency);
-        }
-    }
-
-    doesNotYetHave(newDependency) {
-        let attributeDoesNotYetHaveThisDependency = true;
-        for (const existingDependency of this.dependencies) {
-            if (existingDependency.equals(newDependency)) {
-                attributeDoesNotYetHaveThisDependency = false;
-            }
-        }
-        return attributeDoesNotYetHaveThisDependency;
+        this.dependencies.set(newDependency.hash(), newDependency);
     }
 
     addRedecoratedDependency(newRedecoratedDependency) {
@@ -740,16 +725,8 @@ class Attribute {
         emptyArray(this.redecoratedDependencies);
     }
 
-    getDependencyMap() {
-        const dependencyMap = new Map();
-        for (const dependency of this.dependencies) {
-            dependencyMap.set(dependency.toAttributeName, dependency);
-        }
-        return dependencyMap;
-    }
-
     getAllDependencies() {
-        return this.dependencies.concat(this.redecoratedDependencies);
+        return [...this.dependencies.values(), ...this.redecoratedDependencies];
     }
 
     equals(otherAttribute) {
@@ -757,7 +734,7 @@ class Attribute {
     }
 
     toString() {
-        return this.name + (this.dependencies.length === 0 ? '' : '->{' + this.dependencies + '}');
+        return this.name + (this.dependencies.length === 0 ? '' : '->{' + [...this.dependencies.values()] + '}');
     }
 }
 
@@ -765,8 +742,7 @@ class Attribute {
 /**
  * Dependency class
  *
- * A dependency is a relation between two attributes. It is also a property of the source attribute,
- * so the 'from' side of the relation is already defined.
+ * A dependency is a relation between two attributes.
  *
  * In order to describe the 'to' side of the dependency, i.e. the target, we store the
  * - target attribute name
@@ -779,6 +755,11 @@ class Attribute {
  * - toAttributeName = 'c'
  * - toSymbolIndex = 1
  * - toAttributeIndexInsideSymbol = 2
+ *
+ * The same logic is used to store the 'from' side of the dependency, using the variables:
+ * - fromAttributeName
+ * - fromSymbolIndex
+ * - fromAttributeIndexInsideSymbol
  */
 class Dependency {
 
