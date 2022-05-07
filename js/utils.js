@@ -138,6 +138,10 @@ export function symbolIsRoot(symbolIndex) {
     return symbolIndex === 0;
 }
 
+export function scrollTo(jQuerySelector) {
+    jQuerySelector.get(0).scrollIntoView({behavior: 'smooth'})
+}
+
 
 /* jQuery */
 export function disable(jQuerySelector) {

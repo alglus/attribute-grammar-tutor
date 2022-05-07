@@ -1,10 +1,18 @@
-import {cloneElementAndSetNewAttributeValue, disable, emptyArray, enable, ERROR} from "./utils.js";
+import {
+    chooseOneAtRandom,
+    cloneElementAndSetNewAttributeValue,
+    disable,
+    emptyArray,
+    enable,
+    ERROR,
+    scrollTo
+} from "./utils.js";
 import {AcyclicityGraph} from "./graph.js";
 import {drawDependencyGraph, GRAPH_TYPE} from "./drawDependencyGraph.js";
 import {
     checkAcyclicityGraph,
     checkCycleFound,
-    checkIterationStable,
+    checkIterationStable, checkStrongAcyclicity,
     checkTransitiveRelations
 } from "./checkAcyclicityGraph.js";
 
@@ -48,6 +56,10 @@ function uncollapseExercise() {
     $('#acyclicityCollapseBtn.collapsed').click();
 }
 
+function showStrongAcyclicityQuestion(){
+    $('#strongAcyclicityQuestion').show();
+}
+
 
 /* Create exercise */
 export function createStrongAcyclicityExercise(grammar) {
@@ -68,6 +80,8 @@ export function createStrongAcyclicityExercise(grammar) {
 
         scrollSync('.scrollSync');
     }
+
+    createStrongAcyclicityQuestion(grammar);
 }
 
 
@@ -112,6 +126,20 @@ function cloneProductionRuleContainer(newProductionRuleIndex, nonterminalIndex) 
 function setProductionRuleTitle(productionRule, productionRuleIndex, nonterminalIndex) {
     $(`.acyclicityProductionRuleText[data-nonterminal=${nonterminalIndex}][data-productionRule=${productionRuleIndex}]`)
         .html(productionRule.toString());
+}
+
+function createStrongAcyclicityQuestion(grammar) {
+
+    const questions = [
+        'Is the grammar strongly acyclic?',
+        'Is there a static evaluation strategy for the grammar?',
+        'Is a strongly acyclic grammar also acyclic?'
+    ];
+
+    const questionText = $('#strongAcyclicityQuestionText');
+    questionText.html(chooseOneAtRandom(questions));
+
+    $('#acyclicityCheckButton').on('click', () => checkStrongAcyclicity());
 }
 
 
@@ -275,7 +303,7 @@ function scrollToBeginningOfNewIteration(newIterationIndex) {
     const iterationHeadingListSelector = '.acyclicityIterationHeaderList[data-nonterminal=0]';
     const newIterationTitle = $(`${iterationHeadingListSelector} > li`).eq(newIterationIndex);
 
-    scrollTo(newIterationTitle.get(0), '.scrollSync');
+    scrollForRightAndIntoView(newIterationTitle, '.scrollSync');
 }
 
 /*
@@ -304,12 +332,12 @@ function scrollSync(selector) {
     });
 }
 
-function scrollTo(DOM, scrollSelector) {
+function scrollForRightAndIntoView(objectToScroll, scrollSelector) {
     scrollToFarRight(scrollSelector);
-    waitForScrollToEndAndThenScrollIntoView(DOM, scrollSelector);
+    waitForScrollToEndAndThenScrollIntoView(objectToScroll, scrollSelector);
 }
 
-function waitForScrollToEndAndThenScrollIntoView(DOM, scrollSelector) {
+function waitForScrollToEndAndThenScrollIntoView(objectToScroll, scrollSelector) {
     let lastX = {val: 0};
 
     // The lag of 200ms adds a certain 'smoothness' to the effect.
@@ -320,7 +348,7 @@ function waitForScrollToEndAndThenScrollIntoView(DOM, scrollSelector) {
         const currentX = lastElementOfSelector.scrollLeft();
 
         if (currentX === lastX.val) {
-            DOM.scrollIntoView({behavior: 'smooth'});
+            scrollTo(objectToScroll);
             clearInterval(waitInterval);
         } else {
             lastX.val = currentX;
@@ -387,11 +415,19 @@ function checkIteration(grammar, iterationIndex) {
         redFlashOnCheckButton(iterationIndex);
     }
 
-    if (!errorFound && iterationUnstable(grammar, iterationIndex)) {
+    if (!errorFound) {
         setCheckButtonCorrect(iterationIndex);
-        freezeIteration(iterationIndex);
-        addIteration(grammar, iterationIndex + 1);
+        freezeIteration(grammar, iterationIndex);
+
+        if (iterationUnstable(grammar, iterationIndex)) {
+            addIteration(grammar, iterationIndex + 1);
+        } else {
+            showStrongAcyclicityQuestion();
+            scrollTo($('#strongAcyclicityQuestion'));
+        }
     }
+    // showStrongAcyclicityQuestion(); // TODO: remove
+    // scrollTo($('#strongAcyclicityQuestion')); // TODO: remove
 }
 
 function iterationUnstable(grammar, iterationIndex) {
@@ -410,6 +446,12 @@ function clearCheckIterationErrors(iterationIndex) {
     hideCorrectIcons();
     removeAllTooltips();
     removeRedFlashFromCheckButton(iterationIndex);
+}
+
+export function clearCheckStrongAcyclicityErrors() {
+    unhighlightText();
+    unhighlightRadio();
+    removeAllTooltips();
 }
 
 export function highlightTextAsError(jQuerySelector) {
@@ -464,7 +506,6 @@ function setCheckButtonCorrect(iterationIndex) {
     button.removeClass('btn-primary');
     button.addClass('btn-success');
 }
-
 
 export function addTooltip(jQuerySelector, tooltipText) {
     jQuerySelector.attr({
@@ -535,6 +576,7 @@ function disableCheckIterationButton(iterationIndex) {
 }
 
 function disableAllGraphs(grammar, iterationIndex) {
+    console.log(grammar)
     for (let nonterminalIndex = 0; nonterminalIndex < grammar.nonterminals.length; nonterminalIndex++) {
         for (let productionIndex = 0; productionIndex < grammar.nonterminals.getAt(nonterminalIndex).productionRules.length; productionIndex++) {
             const graph = acyclicityGraphs[nonterminalIndex][productionIndex][iterationIndex];
@@ -544,9 +586,24 @@ function disableAllGraphs(grammar, iterationIndex) {
 }
 
 
+/* Freeze strong acyclicity */
+export function freezeStrongAcyclicityQuestion() {
+    disable($('#acyclicYes'));
+    disable($('#acyclicNo'));
+    disable($('#acyclicityCheckButton'));
+}
+
+function unfreezeStrongAcyclicityQuestion() {
+    enable($('#acyclicYes'));
+    enable($('#acyclicNo'));
+    enable($('#acyclicityCheckButton'));
+}
+
+
 /* Delete exercise */
 export function deleteStrongAcyclicityExercise() {
     hideExerciseContainer();
+    hideStrongAcyclicityQuestion();
     removeAllGraphs();
     deleteAllNonterminalContainers();
     deleteAllProductionRuleContainers();
@@ -559,6 +616,15 @@ export function deleteStrongAcyclicityExercise() {
 
 function hideExerciseContainer() {
     $('#acyclicityExercise').hide();
+}
+
+function hideStrongAcyclicityQuestion() {
+    $('#strongAcyclicityQuestion').hide();
+    unfreezeStrongAcyclicityQuestion();
+    $('#acyclicYes').prop('checked', false);
+    $('#acyclicNo').prop('checked', false);
+    $('#strongAcyclicityQuestionText').empty();
+    $('#congrats').hide().html('');
 }
 
 function removeAllGraphs() {

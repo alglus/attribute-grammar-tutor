@@ -523,12 +523,21 @@ footer div {
     margin: auto 0 auto 1rem;
 }
 
-.greenButton, .greenButton:hover, .greenButton:focus {
-    background-color: #157347;
-    border-color: #146c43;
-    box-shadow: 0 0 0 0;
-    transition: all 0.2s ease;
+#strongAcyclicityQuestion {
+    display: none;
 }
+
+#congrats {
+    display: none;
+    color: #0f5132;
+}
+
+/*.greenButton, .greenButton:hover, .greenButton:focus {*/
+/*    background-color: #157347;*/
+/*    border-color: #146c43;*/
+/*    box-shadow: 0 0 0 0;*/
+/*    transition: all 0.2s ease;*/
+/*}*/
 
 
 .redFlash {

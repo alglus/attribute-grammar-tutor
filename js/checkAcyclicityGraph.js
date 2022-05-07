@@ -1,7 +1,15 @@
-import {arrayIsEmpty, ERROR, removeAllWhiteSpaces, setIsEmpty, symbolIsRoot} from "./utils.js";
+import {
+    arrayIsEmpty,
+    chooseOneAtRandom,
+    disable,
+    ERROR,
+    removeAllWhiteSpaces, scrollTo,
+    setIsEmpty,
+    symbolIsRoot
+} from "./utils.js";
 import {
     addHTMLTooltip,
-    addTooltip,
+    addTooltip, clearCheckStrongAcyclicityErrors, freezeStrongAcyclicityQuestion,
     highlightRadioAsError,
     highlightTextAsError,
     highlightTextInputAsError
@@ -194,5 +202,56 @@ export function checkAcyclicityGraph(grammar, graphObject, nonterminalIndex, pro
         addHTMLTooltip(warningIcon, errorMessages);
         warningIcon.show();
         return ERROR;
+    }
+}
+
+const hmmm = [
+    [65, 114, 101, 32, 121, 111, 117, 32, 115, 117, 114, 101, 63],
+    [84, 104, 105, 110, 107, 32, 97, 98, 111, 117, 116, 32, 105, 116, 32, 97, 103, 97, 105, 110, 46],
+    [72, 109, 109, 109, 46, 46, 46],
+    [84, 114, 121, 32, 99, 104, 111, 111, 115, 105, 110, 103, 32, 116, 104, 101, 32, 111, 116, 104, 101, 114, 32, 97, 110, 115, 119, 101, 114, 46],
+    [73, 32, 100, 111, 110, 39, 116, 32, 116, 104, 105, 110, 107, 32, 116, 104, 97, 116, 39, 115, 32, 116, 104, 101, 32, 114, 105, 103, 104, 116, 32, 97, 110, 115, 119, 101, 114, 46],
+    [72, 97, 118, 101, 32, 121, 111, 117, 32, 116, 114, 105, 101, 100, 32, 116, 104, 101, 32, 111, 116, 104, 101, 114, 32, 97, 110, 115, 119, 101, 114, 63],
+];
+
+const congratsMessages = [
+    'Well done!',
+    'Good job!',
+    'Nice! :)',
+    'Yay!...',
+    'You aced it!',
+    'Nicely done!'
+];
+
+export function checkStrongAcyclicity() {
+
+    clearCheckStrongAcyclicityErrors();
+
+    const answer = $('input:radio[name=acyclic]:checked').val();
+    const expectedAnswer = 'yes'; // All questions are phrased so, that the answer is yes.
+
+    if (answer === undefined) {
+        highlightRadioAsError($('#acyclicYes'));
+        highlightRadioAsError($('#acyclicNo'));
+        highlightTextAsError($('label[for=acyclicYes]'));
+        highlightTextAsError($('label[for=acyclicNo]'));
+        return;
+    }
+
+    if (answer !== expectedAnswer) {
+
+        const questionText = $('#strongAcyclicityQuestionText');
+        highlightTextAsError(questionText);
+        addTooltip(questionText, String.fromCharCode(...chooseOneAtRandom(hmmm)));
+
+    } else {
+
+        freezeStrongAcyclicityQuestion();
+
+        const congrats = $('#congrats');
+        congrats.html(chooseOneAtRandom(congratsMessages));
+        congrats.show();
+
+        scrollTo($('footer'));
     }
 }
