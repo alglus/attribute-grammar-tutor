@@ -1,12 +1,15 @@
 import {DARK_GREY, ERROR_DARK_RED, LIGHT_GREY} from "./joint.attrsys.js";
+import {getRandomIntInclusive} from "./utils.js";
 
 export function defineAttrsysLinks() {
 
     const attrsysLink = defineLink();
     defineSymbolLink(attrsysLink);
-    defineAttributeLink(attrsysLink);
 
-    const acyclicityLink = defineAcyclicityLink(attrsysLink);
+    const attributeLink = defineAttributeLink(attrsysLink);
+    defineRegularAttributeLink(attributeLink);
+
+    const acyclicityLink = defineAcyclicityLink(attributeLink);
     defineRedecoratedLink(acyclicityLink);
     defineProjectedLink(acyclicityLink);
 }
@@ -22,8 +25,24 @@ function defineLink() {
         connector: {name: 'rounded'},
         attrs: {
             z: 2,
+            line: {
+                fill: 'none',
+            },
+            lineHighlight: {
+                connection: true,
+                stroke: 'transparent',
+                strokeWidth: 4,
+                fill: 'none',
+            },
         },
     }, {
+        markup: [{
+            tagName: 'path',
+            selector: 'line',
+        }, {
+            tagName: 'path',
+            selector: 'lineHighlight',
+        },],
         getTools() {
             return [
                 new joint.linkTools.Vertices(),
@@ -50,10 +69,10 @@ function defineSymbolLink(attrsysLink) {
             }
         },
     }, {
-        showErrorHighlighting(area) {
+        showErrorHighlighting() {
             this.prop('attrs/line/stroke', ERROR_DARK_RED);
         },
-        hideErrorHighlighting(area) {
+        hideErrorHighlighting() {
             this.prop('attrs/line/stroke', LIGHT_GREY);
         },
     });
@@ -61,13 +80,40 @@ function defineSymbolLink(attrsysLink) {
 
 
 /**
- * Regular link between attributes
+ * Parent class of attribute links
  * @returns new AttributeLink object
  */
 function defineAttributeLink(attrsysLink) {
 
     return attrsysLink.define('attrsys.AttributeLink', {
-        router: {name: 'manhattan'},
+        router: {
+            name: 'manhattan', args: {
+                // The step is the virtual grid, to which the manhattan route snaps to.
+                // Reduce it from the default=10, so that the random padding can use more of its values.
+                step: 2
+            }
+        },
+    }, {}, {
+        createWithRandomPadding: function () {
+            const newLink = new this();
+
+            // Randomise the padding, so that nearby links do not overlap, and it is easier to tell them apart.
+            const padding = getRandomIntInclusive(10, 30);
+
+            newLink.prop('router/args/padding', padding);
+            return newLink;
+        }
+    });
+}
+
+
+/**
+ * Regular link between attributes
+ * @returns new RegularAttributeLink object
+ */
+function defineRegularAttributeLink(attributeLink) {
+
+    return attributeLink.define('attrsys.RegularAttributeLink', {
         attrs: {
             line: {
                 stroke: DARK_GREY,
@@ -75,10 +121,10 @@ function defineAttributeLink(attrsysLink) {
             },
         },
     }, {
-        showErrorHighlighting(area) {
+        showErrorHighlighting() {
             this.prop('attrs/line/stroke', ERROR_DARK_RED);
         },
-        hideErrorHighlighting(area) {
+        hideErrorHighlighting() {
             this.prop('attrs/line/stroke', DARK_GREY);
         },
     });
@@ -89,36 +135,37 @@ function defineAttributeLink(attrsysLink) {
  * Parent class of the links used in the acyclicity exercise.
  * @returns new AcyclicityLink object
  */
-function defineAcyclicityLink(attrsysLink) {
+function defineAcyclicityLink(attributeLink) {
 
-    return attrsysLink.define('attrsys.AcyclicityLink', {
-        router: {name: 'manhattan'},
+    return attributeLink.define('attrsys.AcyclicityLink', {
         attrs: {
-            line: {
-                strokeWidth: 3,
-                fill: 'none',
-            },
             lineError: {
                 connection: true,
                 stroke: 'transparent',
-                strokeDasharray: '5, 10',
-                strokeWidth: 4,
+                strokeDasharray: '10, 2',
+                strokeWidth: 6,
                 fill: 'none',
+            },
+            line: {
+                strokeWidth: 3,
             },
         },
     }, {
         markup: [{
             tagName: 'path',
-            selector: 'line',
-        }, {
-            tagName: 'path',
             selector: 'lineError',
+        },{
+            tagName: 'path',
+            selector: 'line',
+        },{
+            tagName: 'path',
+            selector: 'lineHighlight',
         },],
-        showErrorHighlighting(area) {
-            this.prop('attrs/lineError/stroke', ERROR_DARK_RED);
+        showErrorHighlighting() {
+            this.prop('attrs/lineError/stroke', 'rgba(255,0,0,0.6)');
         },
-        hideErrorHighlighting(area) {
-            this.prop('attrs/line/stroke', 'transparent');
+        hideErrorHighlighting() {
+            this.prop('attrs/lineError/stroke', 'transparent');
         },
     });
 }
@@ -133,7 +180,7 @@ function defineRedecoratedLink(acyclicityLink) {
     return acyclicityLink.define('attrsys.RedecoratedLink', {
         attrs: {
             line: {
-                stroke: 'rgba(70,187,0,0.7)',
+                stroke: '#46BB00',
             },
         },
     });
@@ -150,7 +197,7 @@ function defineProjectedLink(acyclicityLink) {
         router: {name: 'manhattan'},
         attrs: {
             line: {
-                stroke: 'rgba(255,191,0,0.7)',
+                stroke: 'rgb(255,191,0)',
             },
         },
     });

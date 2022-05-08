@@ -117,7 +117,7 @@ function linkAttributes(graphObject, productionRule, attributeNodes) {
 
             for (const dependency of attribute.dependencies.values()) {
 
-                const link = new joint.shapes.attrsys.AttributeLink();
+                const link = joint.shapes.attrsys.RegularAttributeLink.createWithRandomPadding();
 
                 link.source(attributeNodes[i][j]);
                 link.target(attributeNodes[dependency.toSymbolIndex][dependency.toAttributeIndexInsideSymbol]);

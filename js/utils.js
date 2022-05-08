@@ -112,7 +112,12 @@ export function parameterHasBeenSpecified(parameter) {
 
 /* Misc */
 
-// Returns a random number between 0 (inclusive) and max (exclusive).
+// Returns a random integer between min (inclusive) and max (inclusive). Expects integer min and max values.
+export function getRandomIntInclusive(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+// Returns a random integer between 0 (inclusive) and max (exclusive). Expects an integer max value.
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }

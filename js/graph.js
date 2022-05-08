@@ -164,6 +164,15 @@ export class Graph {
             'blank:pointerup': function (event) {
                 event.data.dragStartPosition = {};
             },
+
+
+            /* Highlight link */
+            'link:mouseenter': function (linkView) {
+                linkView.model.prop('attrs/lineHighlight/stroke', '#009eec');
+            },
+            'link:mouseleave': function (linkView) {
+                linkView.model.prop('attrs/lineHighlight/stroke', 'transparent');
+            },
         });
 
 
@@ -199,7 +208,7 @@ export class DependencyGraph extends Graph {
             if (cellView.model.isSymbol()) {
                 return new joint.shapes.attrsys.SymbolLink();
             } else {
-                return new joint.shapes.attrsys.AttributeLink();
+                return joint.shapes.attrsys.RegularAttributeLink.createWithRandomPadding();
             }
         };
     }
@@ -345,12 +354,6 @@ export class AcyclicityGraph extends Graph {
     constructor(graphContainer, grammar, productionIndex, linkTypeInputName) {
         super(graphContainer, grammar, productionIndex);
 
-        // this.paper.setInteractivity(false);
-        // this.paper.options.interactive = function (cellView) {
-        //     return (cellView.model.get('type') === 'attrsys.RedecoratedLink'
-        //             || cellView.model.get('type') === 'attrsys.ProjectedLink')
-        //         && !this.frozen;
-        // };
         this.#setPaperInteractivity(this.paper);
         this.#setPaperDefaultLinks(linkTypeInputName);
         this.#defineOnPaperEvents(this.paper, this.graph, graphContainer, grammar, productionIndex);
@@ -375,9 +378,9 @@ export class AcyclicityGraph extends Graph {
             const linkType = $(`input[name=${linkTypeInputName}]:checked`).val();
 
             if (linkType === 'redecorated') {
-                return new joint.shapes.attrsys.RedecoratedLink();
+                return joint.shapes.attrsys.RedecoratedLink.createWithRandomPadding();
             } else {
-                return new joint.shapes.attrsys.ProjectedLink();
+                return joint.shapes.attrsys.ProjectedLink.createWithRandomPadding();
             }
         };
     }

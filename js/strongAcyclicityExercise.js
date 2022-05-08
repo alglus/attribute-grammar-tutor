@@ -468,6 +468,7 @@ function clearCheckIterationErrors(iterationIndex) {
     unhighlightTextInput();
     hideWarningIcons();
     hideCorrectIcons();
+    removeAllHighlightingFromGraphLinks(iterationIndex);
     removeAllTooltips();
     removeRedFlashFromCheckButton(iterationIndex);
 }
@@ -508,6 +509,15 @@ export function hideWarningIcons() {
 
 export function hideCorrectIcons() {
     $(`.acyclicityCycleFound > svg.acyclicityGraphCorrectIcon`).hide();
+}
+
+function removeAllHighlightingFromGraphLinks(iterationIndex) {
+    for (const nonterminalContainer of acyclicityGraphs) {
+        for (const productionRuleRow of nonterminalContainer) {
+            const graph = productionRuleRow[iterationIndex];
+            graph.removeAllHighlighting();
+        }
+    }
 }
 
 function redFlashOnCheckButton(iterationIndex) {
