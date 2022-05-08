@@ -89,18 +89,19 @@ footer div {
 .dependenciesGraphCardTitle {
     margin: 0;
     vertical-align: middle;
-    display: table-cell;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 324px;
 }
 
 .showGraphErrorsBtn {
     display: none;
-    float: right;
+    margin: 0 0 0 auto;
 }
 
 .dependencyGraphCorrectIcon {
-    float: right;
-    margin-top: 6px;
     color: #198754;
+    margin-left: auto;
 }
 
 .graphErrors {
@@ -258,6 +259,7 @@ footer div {
 }
 
 .acyclicityNonterminalTitle {
+    overflow: hidden;
     flex: 0 0 50px;
     display: flex;
     justify-content: center;
