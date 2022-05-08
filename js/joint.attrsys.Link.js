@@ -95,7 +95,7 @@ function defineAcyclicityLink(attrsysLink) {
         router: {name: 'manhattan'},
         attrs: {
             line: {
-                strokeWidth: 4,
+                strokeWidth: 3,
                 fill: 'none',
             },
             lineError: {
@@ -133,7 +133,7 @@ function defineRedecoratedLink(acyclicityLink) {
     return acyclicityLink.define('attrsys.RedecoratedLink', {
         attrs: {
             line: {
-                stroke: '#46bb00ee',
+                stroke: 'rgba(70,187,0,0.7)',
             },
         },
     });
@@ -150,7 +150,7 @@ function defineProjectedLink(acyclicityLink) {
         router: {name: 'manhattan'},
         attrs: {
             line: {
-                stroke: '#ffbf00ee',
+                stroke: 'rgba(255,191,0,0.7)',
             },
         },
     });

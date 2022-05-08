@@ -130,7 +130,7 @@
                         <span id="acyclicityCollapseBtnTitle" class="d-flex">Strong acyclicity</span>
                         <span id="acyclicityCollapseBtnInfo" class="d-flex flex-grow-1 pe-3 justify-content-end">
                             <svg data-bs-toggle="tooltip" data-bs-placement="bottom" class="bi bi-info-circle-fill" width="18" height="18" role="img" aria-label="Info"
-                                 data-bs-original-title="asdasdasd">
+                                 data-bs-original-title="For every production rule, draw the redecorated relations with a green edge and the root projections with a yellow one. Decide, whether a cycle was formed in each graph and whether the iteration is stable. Also write down the transitive relation for each non-terminal, using the standard format. For more info, click on help at the top of the page.">
                                 <use xlink:href="#info-circle-fill"/>
                             </svg>
                         </span>
@@ -151,7 +151,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="shortcut"></div>
+                        <div id="shortcutEnd"></div>
 
                         <!-- Nonterminal container -->
                         <div class="acyclicityNonterminalContainer" data-nonterminal="-1">
@@ -255,6 +255,7 @@
 
                                     <!-- Check iteration -->
                                     <li class="acyclicityIterationFooter" data-iteration="-1">
+                                        <div class="shortcutNext" data-iteration="-1"></div>
                                         <div class="text-center p-2 d-flex">
                                             <p>Iteration stable?</p>
                                             <div class="stableYes form-check form-check-inline" data-iteration="-1">
@@ -376,12 +377,12 @@
 </svg>
 
 
-<script type="module" src="js/init.js"></script>
 <script src="bootstrap/bootstrap.5.1.3.bundle.min.js"></script>
 <script src="jointJS/dependencies/jquery.3.6.0.js"></script>
 <script src="jointJS/dependencies/lodash.4.17.21.js"></script>
 <script src="jointJS/dependencies/backbone.1.4.0.js"></script>
 <script src="jointJS/joint.3.5.4.min.js"></script>
 <script src="codemirror/codemirror.5.65.2.js"></script>
+<script type="module" src="js/init.js"></script>
 </body>
 </html>

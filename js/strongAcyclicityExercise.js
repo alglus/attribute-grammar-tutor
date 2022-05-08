@@ -56,7 +56,7 @@ function uncollapseExercise() {
     $('#acyclicityCollapseBtn.collapsed').click();
 }
 
-function showStrongAcyclicityQuestion(){
+function showStrongAcyclicityQuestion() {
     $('#strongAcyclicityQuestion').show();
 }
 
@@ -64,14 +64,14 @@ function showStrongAcyclicityQuestion(){
 /* Create exercise */
 export function createStrongAcyclicityExercise(grammar) {
 
-    for (let nonterminalIndex = 0; nonterminalIndex < grammar.nonterminals.length; nonterminalIndex++) {
+    for (let nonterminalIndex = 0; nonterminalIndex < grammar.strongAcyclicity.nonterminals.length; nonterminalIndex++) {
 
         acyclicityGraphs.push([]); // Add arrays for the production rules.
 
-        const nonterminal = grammar.nonterminals.getAt(nonterminalIndex);
+        const nonterminal = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex);
 
         // if (nonterminalIndex > 0) {
-            cloneNonterminalContainer(nonterminalIndex);
+        cloneNonterminalContainer(nonterminalIndex);
         // }
 
         setNonterminalTitle(nonterminal, nonterminalIndex);
@@ -82,6 +82,7 @@ export function createStrongAcyclicityExercise(grammar) {
     }
 
     createStrongAcyclicityQuestion(grammar);
+    assignFunctionToShortcutEnd();
 }
 
 
@@ -105,7 +106,7 @@ function createProductionRuleContainers(nonterminal, nonterminalIndex) {
         acyclicityGraphs[nonterminalIndex].push([]); // Add arrays for the iterations.
 
         // if (productionRuleIndex > 0) {
-            cloneProductionRuleContainer(productionRuleIndex, nonterminalIndex);
+        cloneProductionRuleContainer(productionRuleIndex, nonterminalIndex);
         // }
 
         const productionRule = nonterminal.productionRules[productionRuleIndex];
@@ -128,32 +129,37 @@ function setProductionRuleTitle(productionRule, productionRuleIndex, nonterminal
         .html(productionRule.toString());
 }
 
-function createStrongAcyclicityQuestion(grammar) {
+const questions = [
+    'Is the grammar strongly acyclic?',
+    'Is there a static evaluation strategy for the grammar?',
+    'Can we claim, that the grammar is acyclic?'
+];
 
-    const questions = [
-        'Is the grammar strongly acyclic?',
-        'Is there a static evaluation strategy for the grammar?',
-        'Is a strongly acyclic grammar also acyclic?'
-    ];
+function createStrongAcyclicityQuestion(grammar) {
 
     const questionText = $('#strongAcyclicityQuestionText');
     questionText.html(chooseOneAtRandom(questions));
 
-    $('#acyclicityCheckButton').on('click', () => checkStrongAcyclicity());
+    $('#acyclicityCheckButton').on('click', () => checkStrongAcyclicity(grammar));
+}
 
-    $('#shortcut').on('click', () => {
+const shortcutWarning = 'SHORTCUT FOUND\n\nYou have just clicked on a hidden shortcut, used for testing.\nPlease be aware, that things might not work as expected anymore.';
+
+function assignFunctionToShortcutEnd() {
+    $('#shortcutEnd').on('click', () => {
         showStrongAcyclicityQuestion();
         scrollTo($('#strongAcyclicityQuestion'));
-    }).show();
+        alert(shortcutWarning);
+    });
 }
 
 
 /* Add iteration */
 export function addIteration(grammar, iterationIndex) {
 
-    for (let nonterminalIndex = 0; nonterminalIndex < grammar.nonterminals.length; nonterminalIndex++) {
+    for (let nonterminalIndex = 0; nonterminalIndex < grammar.strongAcyclicity.nonterminals.length; nonterminalIndex++) {
 
-        const nonterminal = grammar.nonterminals.getAt(nonterminalIndex);
+        const nonterminal = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex);
 
         addIterationHeader(nonterminalIndex, iterationIndex);
 
@@ -163,6 +169,8 @@ export function addIteration(grammar, iterationIndex) {
     }
 
     addIterationFooter(iterationIndex);
+
+    assignFunctionToShortcutNext(grammar, iterationIndex);
 
     assignFunctionToCheckButton(grammar, iterationIndex);
 
@@ -207,7 +215,7 @@ function addGraph(grammar, nonterminalIndex, productionRuleIndex, iterationIndex
 
     acyclicityGraphs[nonterminalIndex][productionRuleIndex].push(graph);
 
-    drawDependencyGraph(graph, grammar, grammar.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex], GRAPH_TYPE.acyclicity);
+    drawDependencyGraph(graph, grammar, grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex], GRAPH_TYPE.acyclicity);
 }
 
 function setLinkTypeRadioButtonsIdAndName(linkType, nonterminalIndex, productionRuleIndex, iterationIndex) {
@@ -302,6 +310,19 @@ function setIterationCheckButtonId(iterationIndex) {
     $(`${buttonParentSelector} button`).attr('id', newId);
 }
 
+function assignFunctionToShortcutNext(grammar, iterationIndex) {
+    const shortcutNextButton = $(`.shortcutNext[data-iteration=${iterationIndex}]`);
+
+    shortcutNextButton.on('click', () => {
+        if (iterationUnstable(grammar, iterationIndex)) {
+            freezeIteration(grammar, iterationIndex);
+            addIteration(grammar, iterationIndex + 1);
+        }
+        shortcutNextButton.off('click');
+        alert(shortcutWarning);
+    });
+}
+
 
 /* Scroll */
 function scrollToBeginningOfNewIteration(newIterationIndex) {
@@ -365,7 +386,7 @@ function scrollToFarRight(scrollSelector) {
     const allScrollElements = $(scrollSelector);
 
     // Take a very large width, to make sure we definitely scroll to the very far right.
-    const width = $(window).width() * 100;
+    const width = $(document).width() * 100;
 
     allScrollElements.each(function () {
         $(this).scrollLeft(width);
@@ -420,7 +441,7 @@ function checkIteration(grammar, iterationIndex) {
         redFlashOnCheckButton(iterationIndex);
     }
 
-    if (errorFound) {
+    if (!errorFound) {
         setCheckButtonCorrect(iterationIndex);
         freezeIteration(grammar, iterationIndex);
 
@@ -431,12 +452,10 @@ function checkIteration(grammar, iterationIndex) {
             scrollTo($('#strongAcyclicityQuestion'));
         }
     }
-    // showStrongAcyclicityQuestion(); // TODO: remove
-    // scrollTo($('#strongAcyclicityQuestion')); // TODO: remove
 }
 
 function iterationUnstable(grammar, iterationIndex) {
-    return grammar.iterationStable[iterationIndex] === 'no';
+    return grammar.strongAcyclicity.isIterationStable[iterationIndex] === 'no';
 }
 
 
@@ -581,9 +600,8 @@ function disableCheckIterationButton(iterationIndex) {
 }
 
 function disableAllGraphs(grammar, iterationIndex) {
-    console.log(grammar)
-    for (let nonterminalIndex = 0; nonterminalIndex < grammar.nonterminals.length; nonterminalIndex++) {
-        for (let productionIndex = 0; productionIndex < grammar.nonterminals.getAt(nonterminalIndex).productionRules.length; productionIndex++) {
+    for (let nonterminalIndex = 0; nonterminalIndex < grammar.strongAcyclicity.nonterminals.length; nonterminalIndex++) {
+        for (let productionIndex = 0; productionIndex < grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules.length; productionIndex++) {
             const graph = acyclicityGraphs[nonterminalIndex][productionIndex][iterationIndex];
             graph.disable();
         }
@@ -630,7 +648,8 @@ function hideStrongAcyclicityQuestion() {
     $('#acyclicNo').prop('checked', false);
     $('#strongAcyclicityQuestionText').empty();
     $('#congrats').hide().html('');
-    $('#shortcut').hide().off('click');
+    $('#shortcutEnd').off('click');
+    $('.shortcutNext').off('click');
     $('#acyclicityCheckButton').off('click');
 }
 

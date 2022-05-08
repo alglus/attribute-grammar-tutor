@@ -78,15 +78,12 @@ footer div {
 }
 
 .dependenciesGraphCard .card {
-    /*position: relative;*/
     width: 402px;
 }
 
 .dependenciesGraphCardHeader {
     font-family: sometypeMono, monospace;
     height: 3rem;
-    /*display: table;*/
-    /*align-items: center;*/
 }
 
 .dependenciesGraphCardTitle {
@@ -180,13 +177,12 @@ footer div {
     position: relative;
 }
 
-#shortcut {
+#shortcutEnd {
     position: absolute;
     top: 0;
     right: 0;
     width: 10px;
     height: 10px;
-    display: none;
 }
 
 #acyclicityExerciseNotEnabledWarning {
@@ -352,10 +348,6 @@ footer div {
     box-shadow: 0 0 4px rgba(0, 0, 0, .4);
 }
 
-/*.acyclicityLinkTypesButton input[type=radio]:checked + label {*/
-/*    background-color: #842029;*/
-/*}*/
-
 .acyclicityLinkTypesButton .redecorated {
     background-color: rgba(70, 187, 0, .6);
 }
@@ -385,7 +377,6 @@ footer div {
 }
 
 .acyclicityWarningIcon {
-    /*float: right;*/
     margin: auto 0.5rem auto auto;
     color: #c71929;
     display: none;
@@ -393,7 +384,6 @@ footer div {
 }
 
 .acyclicityGraphCorrectIcon {
-    /*float: right;*/
     margin: auto 0.5rem auto auto;
     color: #198754;
     display: none;
@@ -516,6 +506,7 @@ footer div {
 }
 
 .acyclicityIterationFooter {
+    position: relative;
     background-color: #f7f7f7;
     display: inline-block;
     width: 402px;
@@ -537,6 +528,15 @@ footer div {
     margin: auto 0 auto 1rem;
 }
 
+.shortcutNext {
+    position: absolute;
+    top: 3px;
+    left: -13px;
+    width: 10px;
+    height: 10px;
+    background-color: #f7f7f7;
+}
+
 #strongAcyclicityQuestion {
     display: none;
 }
@@ -545,14 +545,6 @@ footer div {
     display: none;
     color: #0f5132;
 }
-
-/*.greenButton, .greenButton:hover, .greenButton:focus {*/
-/*    background-color: #157347;*/
-/*    border-color: #146c43;*/
-/*    box-shadow: 0 0 0 0;*/
-/*    transition: all 0.2s ease;*/
-/*}*/
-
 
 .redFlash {
     -webkit-animation-name: redFlash;

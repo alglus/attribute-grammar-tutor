@@ -26,12 +26,12 @@ export function checkIterationStable(grammar, actualAnswer, iterationIndex) {
         return ERROR;
     }
 
-    const expectedAnswer = grammar.iterationStable[iterationIndex];
+    const expectedAnswer = grammar.strongAcyclicity.isIterationStable[iterationIndex];
 
     if (actualAnswer !== expectedAnswer) {
         const questionSelector = $(`.acyclicityIterationFooter[data-iteration=${iterationIndex}] p`);
         highlightTextAsError(questionSelector);
-        addTooltip(questionSelector, 'An iteration is considered stable, if there were no changes to the previous one.');
+        addTooltip(questionSelector, 'An iteration is considered stable, if no new transitive relations were found.');
         return ERROR;
     }
 }
@@ -39,7 +39,7 @@ export function checkIterationStable(grammar, actualAnswer, iterationIndex) {
 
 export function checkTransitiveRelations(grammar, actualRelationsAnswer, nonterminalIndex, iterationIndex) {
 
-    const expectedRelations = Array.from(grammar.nonterminals.getAt(nonterminalIndex).iterations[iterationIndex].transitiveRelations.values())
+    const expectedRelations = Array.from(grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).iterations[iterationIndex].transitiveRelations.values())
         .map(dependency => dependency.toRelationString())
         .sort()
         .toString();
@@ -76,7 +76,7 @@ export function checkCycleFound(grammar, actualAnswer, nonterminalIndex, product
         return ERROR;
     }
 
-    const expectedAnswer = grammar.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].cycleFound;
+    const expectedAnswer = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].cycleFound;
 
     if (actualAnswer !== expectedAnswer) {
         const questionSelector = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}][data-iteration=${iterationIndex}] p`);
@@ -94,8 +94,8 @@ export function checkAcyclicityGraph(grammar, graphObject, nonterminalIndex, pro
 
     // Create copies of the original map, in order to delete relations, as they being are found.
     // This way we can at the end tell, which relations have not been drawn.
-    const expectedRedecoratedRelations = new Map(grammar.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].redecoratedRelations);
-    const expectedRootProjections = new Map(grammar.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].rootProjections);
+    const expectedRedecoratedRelations = new Map(grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].redecoratedRelations);
+    const expectedRootProjections = new Map(grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].rootProjections);
 
     // The graph is generated automatically, so the solution is correct and there is definitely just one root.
     const graphRoot = graphObject.getRoots()[0];
@@ -214,7 +214,7 @@ const hmmm = [
     [72, 97, 118, 101, 32, 121, 111, 117, 32, 116, 114, 105, 101, 100, 32, 116, 104, 101, 32, 111, 116, 104, 101, 114, 32, 97, 110, 115, 119, 101, 114, 63],
 ];
 
-const congratsMessages = [
+const congrats = [
     'Well done!',
     'Good job!',
     'Nice! :)',
@@ -223,12 +223,12 @@ const congratsMessages = [
     'Nicely done!'
 ];
 
-export function checkStrongAcyclicity() {
+export function checkStrongAcyclicity(grammar) {
 
     clearCheckStrongAcyclicityErrors();
 
     const answer = $('input:radio[name=acyclic]:checked').val();
-    const expectedAnswer = 'yes'; // TODO: grammar....
+    const expectedAnswer = grammar.strongAcyclicity.isStronglyAcyclic;
 
     if (answer === undefined) {
         highlightRadioAsError($('#acyclicYes'));
@@ -248,9 +248,9 @@ export function checkStrongAcyclicity() {
 
         freezeStrongAcyclicityQuestion();
 
-        const congrats = $('#congrats');
-        congrats.html(chooseOneAtRandom(congratsMessages));
-        congrats.show();
+        const congratsHTML = $('#congrats');
+        congratsHTML.html(chooseOneAtRandom(congrats));
+        congratsHTML.show();
 
         scrollTo($('footer'));
     }

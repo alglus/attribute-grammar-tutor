@@ -28,11 +28,10 @@ export class Grammar {
     #allNonterminalNames = new Set();
     #allAttributeNames = new Set();
     #attributesBySymbol = new Map();
-    #nonterminals = new IndexedMap();
     #productionRules = [];
     #errors = [];
     #numberOfElementsPerRule = [];
-    #iterationStable = ['no', 'no', 'no', 'yes']; // TODO
+    #strongAcyclicity = new StrongAcyclicity();
 
 
     constructor(grammarText) {
@@ -142,10 +141,8 @@ export class Grammar {
 
 
     #addNonterminal(nonterminalName) {
-
-        if (!this.#nonterminals.has(nonterminalName)) {
-
-            this.#nonterminals.add(nonterminalName, new Nonterminal(nonterminalName));
+        if (!this.#strongAcyclicity.nonterminals.has(nonterminalName)) {
+            this.#strongAcyclicity.nonterminals.add(nonterminalName, new Nonterminal(nonterminalName));
         }
     }
 
@@ -154,7 +151,7 @@ export class Grammar {
 
         const leftNonterminalName = productionRule.leftSide().name;
 
-        const productionRules = getOrCreateArray(this.#nonterminals.get(leftNonterminalName).productionRules);
+        const productionRules = getOrCreateArray(this.#strongAcyclicity.nonterminals.get(leftNonterminalName).productionRules);
         productionRules.push(productionRule);
     }
 
@@ -365,16 +362,12 @@ export class Grammar {
         while (someNonterminalIsUnstable) {
 
             someNonterminalIsUnstable = false;
+            this.#strongAcyclicity.addIteration();
 
-            for (const nonterminal of this.#nonterminals.values()) {
-
-                // The last nonterminal iteration is the current one, because a new iteration object has not been added yet.
-                // First we check whether the nonterminal iteration is stable, and then add a new iteration object.
-                const lastNonterminalIteration = nonterminal.getCurrentIteration();
-
-                if (lastNonterminalIteration.isStable) continue;
+            for (const nonterminal of this.#strongAcyclicity.nonterminals.values()) {
 
                 nonterminal.addIteration();
+                const previousNonterminalIteration = nonterminal.getPreviousIteration(iterationIndex);
 
                 for (const productionRule of nonterminal.productionRules) {
 
@@ -387,8 +380,9 @@ export class Grammar {
                     this.#calculateTransitiveClosure(productionRule, nonterminal, iterationIndex);
                 }
 
-                if (this.#nonterminalIsUnstable(nonterminal, iterationIndex, lastNonterminalIteration)) {
+                if (this.#nonterminalIsUnstable(nonterminal, iterationIndex, previousNonterminalIteration)) {
                     someNonterminalIsUnstable = true;
+                    this.#strongAcyclicity.setIterationUnstable(iterationIndex);
                 }
             }
             iterationIndex++;
@@ -417,17 +411,20 @@ export class Grammar {
             // Therefore, there cannot be relations to redecorate for terminals, and so we ignore them.
             if (symbol.isNonterminal(this.#allNonterminalNames)) {
 
-                const prevNonterminalIteration = this.#nonterminals.get(symbol.name).getPreviousIteration(iterationIndex);
+                const prevNonterminalIteration = this.#strongAcyclicity.nonterminals.get(symbol.name).getPreviousIteration(iterationIndex);
 
-                for (const relation of prevNonterminalIteration.transitiveRelations.values()) {
+                for (const rootProjection of prevNonterminalIteration.transitiveRelations.values()) {
 
-                    const redecoratedRelation = Dependency.redecorateTo(relation, symbolIndex);
+                    const redecoratedRelation = Dependency.redecorateTo(rootProjection, symbolIndex);
 
-                    const attribute = symbol.attributes.getAt(relation.fromAttributeIndexInsideSymbol);
+                    // Find out, what is the source attribute of the root projection.
+                    const sourceAttribute = symbol.attributes.getAt(rootProjection.fromAttributeIndexInsideSymbol);
 
-                    if (!attribute.dependencies.has(redecoratedRelation)) {
+                    // We only redecorate a root projection from the previous iteration,
+                    // if this relation is not already present in the production rule.
+                    if (!sourceAttribute.dependencies.has(redecoratedRelation)) {
 
-                        attribute.addRedecoratedDependency(redecoratedRelation);
+                        sourceAttribute.addRedecoratedDependency(redecoratedRelation);
                         productionRule.iterations[iterationIndex].addRedecoratedRelation(redecoratedRelation);
                     }
                 }
@@ -461,6 +458,7 @@ export class Grammar {
                     // By traversing the graph with DFS, we came back to the attribute, where we started.
                     if (symbolIndex === dependency.toSymbolIndex && attribute.name === targetAttribute.name) {
                         productionRule.iterations[iterationNumber].cycleFound = 'yes';
+                        this.#strongAcyclicity.isStronglyAcyclic = 'no';
                         break;
                     }
 
@@ -469,12 +467,16 @@ export class Grammar {
 
                         visited.add(targetHash);
 
-                        // In a dependency: a -> b, we set the parent of the target 'b' to 'a'.
+                        // In a dependency: a -> b, we set the source 'a' as the parent of the target 'b'.
                         // This is needed, to later go back to the parents and add transitive closures.
                         parents.set(targetHash, dependency.getSourceAttributeCoordinates());
 
                         dependencyStack.push(...targetAttribute.getAllDependencies());
 
+                        // This dependency points to an attribute at the root node. That's good, because we want to
+                        // calculate the root projections, which are relations that start and end at the root.
+                        // So now we need to build transitive closures from this attribute backwards, and see
+                        // whether we find a source attribute, which also is at the root node.
                         if (symbolIsRoot(dependency.toSymbolIndex)) {
 
                             let parentCoordinates = parents.get(dependency.targetHash());
@@ -485,17 +487,15 @@ export class Grammar {
                                 const parentAttribute = productionRule.symbols[parentCoordinates.symbolIndex].attributes.getAt(parentCoordinates.attributeIndex);
                                 const parentHash = `${parentCoordinates.symbolIndex}${parentAttribute.name}`;
 
-
-                                // The only transitive closures we are interested in, are the ones,
-                                // that start and end in the root.
+                                // We've found a parent attribute, which is also at the root - we have a root projection!
                                 if (symbolIsRoot(parentCoordinates.symbolIndex)) {
 
-                                    const newRootDependency = new Dependency(
+                                    const newRootProjection = new Dependency(
                                         parentAttribute.name, parentCoordinates.symbolIndex, parentCoordinates.attributeIndex,
                                         targetAttribute.name, dependency.toSymbolIndex, dependency.toAttributeIndexInsideSymbol);
 
-                                    this.#addRootProjection(productionRule, iterationNumber, newRootDependency);
-                                    this.#addTransitiveRelation(nonterminal, iterationNumber, newRootDependency);
+                                    this.#addRootProjection(productionRule, iterationNumber, newRootProjection);
+                                    this.#addTransitiveRelation(nonterminal, iterationNumber, newRootProjection);
                                 }
 
                                 // Get the grandparent.
@@ -519,6 +519,7 @@ export class Grammar {
 
     #nonterminalIsUnstable(nonterminal, iterationIndex, prevNonterminalIteration) {
 
+        // The very first iteration cannot be stable.
         if (iterationIndex === 0)
             return true;
 
@@ -543,10 +544,6 @@ export class Grammar {
         return this.#errors;
     }
 
-    get nonterminals() {
-        return this.#nonterminals;
-    }
-
     get productionRules() {
         return this.#productionRules;
     }
@@ -567,8 +564,8 @@ export class Grammar {
         return this.#numberOfElementsPerRule;
     }
 
-    get iterationStable() {
-        return this.#iterationStable;
+    get strongAcyclicity() {
+        return this.#strongAcyclicity;
     }
 }
 
@@ -822,6 +819,27 @@ class Dependency {
     }
 }
 
+
+/**
+ * Strong Acyclicity class
+ */
+class StrongAcyclicity {
+
+    nonterminals = new IndexedMap();
+    isStronglyAcyclic = 'yes';
+    isIterationStable = [];
+
+    addIteration() {
+        // Default it to stable and only change to unstable, if some instability found.
+        this.isIterationStable.push('yes');
+    }
+
+    setIterationUnstable(iterationIndex) {
+        this.isIterationStable[iterationIndex] = 'no';
+    }
+}
+
+
 /**
  * Nonterminal class
  */
@@ -839,20 +857,32 @@ class Nonterminal {
         this.iterations.push(new NonterminalIteration());
     }
 
-    getCurrentIteration() {
-        if (this.iterations.length === 0)
-            return NonterminalIteration.empty;
-
-        return getLastArrayItem(this.iterations);
-    }
-
+    /* In the algorithm to calculate the strong acyclicity, we are looping through all nonterminals in each iteration.
+     * - CASE 1: This is the easy one. If it is the first iteration, there are no previous ones, so we return an empty object.
+     * - CASE 3: When we come to a new nonterminal in our loop, we first add a NonterminalIteration and then use
+     *           the getPreviousIteration() function. Say we are at iterationIndex = 1. After adding a NonterminalIteration,
+     *           iterations.length becomes 2. So to get the previous iteration, we need to get the penultimate item in the
+     *           array, which is the 1st item (index 0).
+     * - CASE 2: This case happens when we redecorate. Say we have:
+     *              - nonterminals: A, B
+     *              - production rules: A -> B t,  B -> s
+     *           We start an iteration loop with A. Then we go and redecorate the productions of A, which is A -> B t.
+     *           In this production rule, when we come to B, we want to get the transitive relations from B's previous
+     *           iteration. But because we have started with A and did not come to the nonterminal B yet, B has one
+     *           iteration less than A in the array. So its array length matches the current iteration index. And B's
+     *           previous iteration is the last item in the iterations array.
+     */
     getPreviousIteration(currentIterationIndex) {
+        // CASE 1
         if (currentIterationIndex === 0)
             return NonterminalIteration.empty;
 
-        if (this.#currentIterationObjectNotYetCreated(currentIterationIndex))
+        // CASE 2
+        if (this.#currentIterationObjectNotYetCreated(currentIterationIndex)) {
             return getLastArrayItem(this.iterations);
+        }
 
+        // CASE 3
         return getPenultimateArrayItem(this.iterations);
     }
 
