@@ -11,8 +11,15 @@
 </head>
 <body>
 <div id="mainContainer" class="container">
+
+    <!-- Warning for mobile devices -->
+    <div id="mobileWarning" class="alert alert-warning align-items-center mt-3 text-center mx-auto" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+        <div>This page is not intended to be used on mobile devices, as it relies on the use of such functions, as the mouse wheel or the mouse hover.</div>
+    </div>
+
     <!-- Header -->
-    <header>
+    <header class="mt-2">
         <h1 class="float-start">Attribute Systems Tutor</h1>
         <button id="aboutBtn" type="button" class="headerButtons btn btn-outline-secondary btn-sm float-end" title="About" data-bs-toggle="modal" data-bs-target="#about">
             <svg class="bi bi-info-circle" width="16" height="16" role="img" aria-label="About">

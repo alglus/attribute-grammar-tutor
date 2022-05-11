@@ -23,6 +23,10 @@
     flex-direction: column;
 }
 
+#mobileWarning {
+    display: none;
+}
+
 noscript {
     display: block;
     width: 50%;
@@ -212,6 +216,7 @@ footer div {
     position: absolute;
     width: 6px;
     height: 100%;
+    z-index: 99999;
 }
 
 .leftGradient {

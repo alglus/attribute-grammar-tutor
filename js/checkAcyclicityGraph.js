@@ -81,7 +81,7 @@ export function checkCycleFound(grammar, actualAnswer, nonterminalIndex, product
     if (actualAnswer !== expectedAnswer) {
         const questionSelector = $(`.acyclicityCycleFound[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}][data-iteration=${iterationIndex}] p`);
         highlightTextAsError(questionSelector);
-        addTooltip(questionSelector, 'Try building for every attribute all possible transitive relations and see, whether a cycle is formed.');
+        addTooltip(questionSelector, 'Try building the transitive closure for all relations and see, whether a cycle is formed.');
         return ERROR;
     }
 }

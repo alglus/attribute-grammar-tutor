@@ -5,6 +5,12 @@ export let grammarInput;
 
 $(document).ready(function () {
 
+    // Check if it is a mobile device and show a warning.
+    if (window.matchMedia( "(hover: none)" ).matches) {
+        // hover unavailable
+        $('#mobileWarning').css('display', 'flex');
+    }
+
     // Set function for the 'Apply' button.
     $('#applyGrammarButton').click(function () {
         applyGrammar(grammarInput.getDoc().getValue());
