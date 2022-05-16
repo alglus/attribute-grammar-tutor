@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <link rel="stylesheet" href="bootstrap/bootstrap.5.1.3.min.css">
     <link rel="stylesheet" href="jointJS/joint.3.5.4.min.css"/>
     <link rel="stylesheet" href="codemirror/codemirror.5.65.2.css"/>
@@ -16,7 +16,9 @@
 
     <!-- Warning for mobile devices -->
     <div id="mobileWarning" class="alert alert-warning align-items-center mt-3 text-center mx-auto" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:">
+            <use xlink:href="#exclamation-triangle-fill"/>
+        </svg>
         <div>This page is not intended to be used on mobile devices, as it relies on the use of such functions, as the mouse wheel or the mouse hover.</div>
     </div>
 
@@ -43,8 +45,8 @@
         </div>
 
         <!-- Grammar buttons -->
-        <button type="button" id="applyGrammarButton" class="btn btn-primary me-2">Apply</button>
-        <button type="button" id="editGrammarButton" class="btn btn-secondary" disabled>Edit</button>
+        <button type="button" id="applyGrammarButton" class="btn btn-primary me-2" title="Apply attribute grammar and generate exercises">Apply</button>
+        <button type="button" id="editGrammarButton" class="btn btn-secondary" title="Delete exercises and edit attribute grammar" disabled>Edit</button>
 
         <!-- noscript warning -->
         <noscript>
@@ -98,11 +100,11 @@
                                         <!-- Local dependency graph buttons -->
                                         <div class="container text-center p-2 border-top">
                                             <div class="row justify-content-center">
-                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary btn-sm me-2 dependenciesCheckBtn">Check</button>
-                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary btn-sm me-2 dependenciesClearBtn">Clear</button>
-                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary btn-sm me-2 dependenciesDrawBtn">Draw tree</button>
-                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary btn-sm me-2 dependenciesSolutionBtn">Show solution</button>
-                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary dependenciesRecenterBtn">
+                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary btn-sm me-2 dependenciesCheckBtn" title="Check graph and show errors">Check</button>
+                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary btn-sm me-2 dependenciesClearBtn" title="Clear graph">Clear</button>
+                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary btn-sm me-2 dependenciesDrawBtn" title="Draw syntax tree">Draw tree</button>
+                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary btn-sm me-2 dependenciesSolutionBtn" title="Show correct solution">Show solution</button>
+                                                <button type="button" data-index="0" class="col-auto btn btn-outline-secondary dependenciesRecenterBtn" title="Recenter canvas">
                                                     <svg class="bi" width="16" height="16" role="img">
                                                         <use xlink:href="#arrows-to-center"/>
                                                     </svg>
@@ -118,10 +120,10 @@
                     <!-- Local dependency graph ALL buttons -->
                     <div class="container text-center p-4">
                         <div class="gy-3 row justify-content-center">
-                            <button id="dependenciesCheckAllBtn" type="button" class="col-auto btn btn-outline-primary me-3">Check all</button>
-                            <button id="dependenciesClearAllBtn" type="button" class="col-auto btn btn-outline-primary me-3">Clear all</button>
-                            <button id="dependenciesDrawAllBtn" type="button" class="col-auto btn btn-outline-primary me-3">Draw all trees</button>
-                            <button id="dependenciesAllSolutionsBtn" type="button" class="col-auto btn btn-outline-primary me-3">Show all solutions</button>
+                            <button id="dependenciesCheckAllBtn" type="button" class="col-auto btn btn-outline-primary me-3" title="Check all graphs and show errors">Check all</button>
+                            <button id="dependenciesClearAllBtn" type="button" class="col-auto btn btn-outline-primary me-3" title="Clear all graphs">Clear all</button>
+                            <button id="dependenciesDrawAllBtn" type="button" class="col-auto btn btn-outline-primary me-3" title="Draw all syntax trees">Draw all trees</button>
+                            <button id="dependenciesAllSolutionsBtn" type="button" class="col-auto btn btn-outline-primary me-3" title="Show correct solution for all graphs">Show all solutions</button>
                         </div>
                     </div>
                 </div>
@@ -238,12 +240,12 @@
 
                                     <!-- Transitive relations -->
                                     <div class="acyclicityTransitiveRelationsContainer d-flex" data-nonterminal="-1">
-                                        <div class="acyclicityTransitiveRelationsText">R</div>
+                                        <div class="acyclicityTransitiveRelationsText greatVibes">R</div>
                                         <div class="acyclicityTransitiveRelations flex-grow-1 scrollSync">
                                             <ul class="acyclicityTransitiveRelationsList" data-nonterminal="-1">
                                                 <li class="acyclicityTransitiveRelationsItem" data-nonterminal="-1" data-iteration="-1">
                                                     <div class="d-flex">
-                                                        <label for="transitiveRelation_-1_-1"><span>R</span> ( <i>X</i> ) =</label>
+                                                        <label for="transitiveRelation_-1_-1"><span class="greatVibes">R</span> ( <i>X</i> ) =</label>
                                                         <input id="transitiveRelation_-1_-1" type="text" placeholder="(a,b), (c,d)" autocomplete="off">
                                                     </div>
                                                 </li>
@@ -275,7 +277,7 @@
                                                 <input class="form-check-input" type="radio" name="stable_-1" id="stableNo_-1" value="no" autocomplete="off">
                                                 <label class="form-check-label" for="stableNo_-1">no</label>
                                             </div>
-                                            <button type="button" id="iterationCheck_-1" class="btn btn-primary ms-5 flex-grow-1">Check</button>
+                                            <button type="button" id="iterationCheck_-1" class="btn btn-primary ms-5 flex-grow-1" title="Check iteration">Check</button>
                                         </div>
                                     </li>
                                 </ul>
@@ -320,16 +322,162 @@
 </div>
 
 <!-- Help -->
-<div class="modal fade" id="help" tabindex="-1" aria-labelledby="helpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<div id="help" class="modal fade" tabindex="-1" aria-labelledby="helpLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="helpLabel">Help</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Del</kbd><br>
-                ...
+                <ul id="helpContents" class="nav justify-content-center">
+                    <li class="nav-item"><a class="nav-link pt-0" href="#helpAttributeGrammar">Attribute Grammar</a></li>
+                    <li class="nav-item"><a class="nav-link pt-0" href="#helpLocalDependencyGraphs">Local dependency graphs</a></li>
+                    <li class="nav-item"><a class="nav-link pt-0" href="#helpStrongAcyclicity">Strong acyclicity</a></li>
+                </ul>
+
+                <!-- Help: attribute grammar -->
+                <div id="helpAttributeGrammar" class="pb-5">
+                    <h4 class="border-bottom mb-4 pb-1">Attribute Grammar</h4>
+
+                    <h6 class="mb-3"><u>Buttons</u></h6>
+                    <dl class="row">
+                        <dt class="col-sm-1"><kbd>Apply</kbd></dt>
+                        <dd class="col-sm-11">Parses the specified attribute grammar and generates two exercises based on it: <i>Local dependency graphs</i> and <i>Strong acyclicity</i>. The editing of the grammar is disabled. If errors were found, they are displayed, and they must be removed, before the exercises can be generated.</dd>
+                        <dt class="col-sm-1"><kbd>Edit</kbd></dt>
+                        <dd class="col-sm-11"><b>Warning!</b> Clicking on <code>Edit</code> will delete the exercises and any changes you made to them. This cannot be undone.<br>Afterwards, the attribute grammar can be edited again.</dd>
+                    </dl>
+
+                    <h6 class="mt-4 mb-3"><u>Format</u></h6>
+                    <p class="mb-2">Production Rules</p>
+                    <ul>
+                        <li>One production rule per line.</li>
+                        <li>The first non-terminal is separated from the remaining (non-)terminals by an arrow <code>-></code>.<br>
+                            <span class="d-inline-block ps-3"><small class="pe-2">EG:</small><code>S -> A B</code></span>
+                        </li>
+                        <li>(Non-)terminals on the right-hand side of the production rule are separated by a <code>whitespace</code>.</li>
+                        <li>The production rule is separated from its attribute equations by a colon <code>:</code>. The attribute equations are on the same line as the corresponding production rule.<br>
+                            <span class="d-inline-block ps-3"><small class="pe-2">EG:</small><code>production rule : attribute equations</code></span>
+                        </li>
+                        <li>An empty symbol (ε) is represented by an empty right-hand side of the production rule.<br>
+                            <span class="d-inline-block ps-3"><small class="pe-2">EG:</small>The rule <span class="text-black-50">S → ε</span> would be represented as: <code>S -> : …</code></span>
+                        </li>
+                        <li>The name of the (non-)terminals may not contain the characters <code>[</code>, <code>]</code>, <code>;</code>, <code>=</code>.</li>
+                    </ul>
+                    <p class="mt-4 mb-2">Attribute equations</p>
+                    <ul>
+                        <li>Attribute equations are separated by a semicolon <code>;</code>.</li>
+                        <li>The format of an attribute equation is: <code>right side = left side</code>.</li>
+                        <li>The left-hand side is composed of <u>just one</u> attribute, whereas the right-hand side can contain several attributes.</li>
+                        <li>An attribute is composed of its name (any letters or digits), followed by the index of the corresponding (non)-terminal in square brackets <code>[]</code>.<br>
+                            <span class="d-inline-block ps-3"><small class="pe-2">EG:</small><code>a[1]</code>, <code>attr2[0]</code>, <code>1337[42]</code></span>
+                        </li>
+                        <li>An attribute equation can contain any sort of expression. It will be ignored, when extracting the attributes.<br>
+                            <span class="d-inline-block ps-3"><small class="pe-2">EG:</small><code>a[0] = max(a[1], a[2])</code> - the extracted attributes will be <code>a[0]</code>, <code>a[1]</code> and <code>a[2]</code>.</span>
+                        </li>
+                        <li>According to the convention, for example, equation <code>a[0] = b[0]</code> reads as: <i>"Attribute a depends on attribute b."</i> and implies a dependency from <code>b</code> to <code>a</code>.</li>
+                    </ul>
+                </div>
+
+                <!-- Help: local dependency graphs -->
+                <div id="helpLocalDependencyGraphs" class="pt-4 pb-5">
+                    <h4 class="border-bottom mb-3 pb-1">Local dependency graphs</h4>
+
+                    <!-- Buttons -->
+                    <h6 class="mb-3"><u>Buttons</u></h6>
+                    <dl class="row">
+                        <dt class="col-sm-2"><kbd>Check</kbd></dt>
+                        <dd class="col-sm-10">Performs a check of the correctness of the graph representation of the production rule. If any error is found, by clicking on the red warning button, a list of relevant error messages can be displayed.</dd>
+                        <dt class="col-sm-2"><kbd>Clear</kbd></dt>
+                        <dd class="col-sm-10">Completely erases everything on the graph canvas. Cannot be undone!</dd>
+                        <dt class="col-sm-2"><kbd>Draw tree</kbd></dt>
+                        <dd class="col-sm-10">The syntax tree is automatically drawn on the canvas. This helps you focus on adding the correct attributes and their dependencies. Any changes made to the graph will be erased, before the syntax tree is drawn.</dd>
+                        <dt class="col-sm-2"><kbd>Show solution</kbd></dt>
+                        <dd class="col-sm-10">Shows the correct graph representation of the production rule, with all the attributes and their dependencies. Any changes made to the graph will be erased, before the solution is drawn.</dd>
+                        <dt class="col-sm-2">
+                            <kbd>
+                                <svg class="bi" width="14" height="14" role="img">
+                                    <use xlink:href="#arrows-to-center"/>
+                                </svg>
+                            </kbd>
+                        </dt>
+                        <dd class="col-sm-10">Recenters and fits the content to the canvas.</dd>
+                    </dl>
+
+                    <!-- Draw -->
+                    <h6 class="mt-4 mb-3"><u>Draw</u></h6>
+                    <dl class="row">
+                        <dt class="col-sm-3">New syntax tree node</dt>
+                        <dd class="col-sm-9">A mouse <kbd>double click</kbd> on any empty part of the canvas creates a new syntax tree node.</dd>
+
+                        <dt class="col-sm-3">New attribute node</dt>
+                        <dd class="col-sm-9">Hover over the corresponding (non-)terminal. <kbd>Click</kbd> on the orange circle with a plus sign, which appears on its right side.</dd>
+
+                        <dt class="col-sm-3">Rename node</dt>
+                        <dd class="col-sm-9">Hover over the node and use the <kbd>mouse wheel scroll</kbd> to choose the correct name.
+                            <ul class="mb-0">
+                                <li>Syntax tree: only the (non-)terminal names of the corresponding production rule will be toggled.</li>
+                                <li>Attributes: all attribute names from the whole attribute grammar will be toggled. This is due to the fact, that some attributes may be defined in a different production rule.</li>
+                            </ul>
+                        </dd>
+
+                        <dt class="col-sm-3">Connect nodes</dt>
+                        <dd class="col-sm-9">Move the mouse pointer to the border of the node, from which you want the draw the edge. <kbd>Click and drag</kbd> the new edge to the other node. Only nodes of the same type can be connected. If you release the mouse button midway, no connection is created.</dd>
+
+                        <dt class="col-sm-3">Reconnect nodes</dt>
+                        <dd class="col-sm-9">To move an edge to another node, <kbd>click and drag</kbd> the arrow from one node to the other node.</dd>
+
+                        <dt class="col-sm-3">Rearrange edges</dt>
+                        <dd class="col-sm-9">
+                            <ul class="list-unstyled mb-0">
+                                <li>To rearrange the path of an edge, <kbd>click</kbd> on the edge to create a new vertex.</li>
+                                <li>To move this vertex, <kbd>click and drag</kbd> it to any other position.</li>
+                                <li>To delete a vertex, <kbd>double click</kbd> on it.</li>
+                            </ul>
+                        </dd>
+
+                        <dt class="col-sm-3">Delete element</dt>
+                        <dd class="col-sm-9">
+                            <ul class="list-unstyled mb-0">
+                                <li>Hover over the element and <kbd>click</kbd> on the grey circle with a cross.</li>
+                                <li>You can also delete an element by hovering over it and pressing the <kbd>Del</kbd> key on the keyboard.</li>
+                                <li>Another option is to <kbd>middle click</kbd> on the element to be deleted. This, however, does not work on edges.</li>
+                            </ul>
+                        </dd>
+
+                        <dt class="col-sm-3">Zoom</dt>
+                        <dd class="col-sm-9">To zoom in or zoom out, use the <kbd>mouse wheel</kbd> over any empty point on the graph canvas.</dd>
+
+                        <dt class="col-sm-3">Pan</dt>
+                        <dd class="col-sm-9"><kbd>Click and drag</kbd> any blank point on the graph canvas.</dd>
+                    </dl>
+
+                </div>
+
+
+                <!-- Help: strong acyclicity -->
+                <div id="helpStrongAcyclicity" class="pt-4">
+                    <h4 class="border-bottom mb-3 pb-1">Strong acyclicity</h4>
+                    <p><b>Objective:</b> perform the algorithm to find out, whether the attribute grammar is strongly acyclic.<br>
+                        This exercises leads you through the process of establishing the transitive relations and the different iterations, until the algorithm stabilizes.</p>
+
+                    <dl class="row">
+                        <dt class="col-sm-3 fw-normal"><span class="greatVibes">R</span> (X) [ i ]</dt>
+                        <dd class="col-sm-9">Redecorate the relations from previous iterations to the non-terminals in the current production rule.<br>
+                            Draw the redecorated relations using green edges <span id="helpGreenEdge" class="d-inline-block"></span> between the correct attributes of the corresponding non-terminal.
+                        </dd>
+
+                        <dt class="col-sm-3 fw-normal">&#x27e6; p &#x27e7;<sup>#</sup> ( <span class="greatVibes">R</span> (X<sub>1</sub>), ..., <span class="greatVibes">R</span> (X<sub>k</sub>) )</dt>
+                        <dd class="col-sm-9">Establish the root projection of the transitive closure of the production rule relations.<br>
+                            Draw the root projection using yellow edges <span id="helpYellowEdge" class="d-inline-block"></span> between the correct attributes.
+                        </dd>
+
+                        <dt class="col-sm-3 fw-normal"><span class="greatVibes">R</span> (X)</dt>
+                        <dd class="col-sm-9">Write down the union of all transitive relations from the production rules of the corresponding non-terminal.<br>
+                            Please use the following format: a relation from attribute <b>a</b> to attribute <b>b</b> is represented as <code>(a, b)</code>.
+                        </dd>
+                    </dl>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -340,15 +488,19 @@
 
 
 <!-- About -->
-<div class="modal fade" id="about" tabindex="-1" aria-labelledby="aboutLabel" aria-hidden="true">
+<div id="about" class="modal fade" tabindex="-1" aria-labelledby="aboutLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="aboutLabel">About</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                ...
+            <div id="aboutContent" class="modal-body">
+                <img class="d-block mx-auto w-100 h-auto" src="img/tum_logo.png" alt="TUM logo">
+                <p class="mt-4">The Attribute Systems Tutor provides exercises to learn the graph representation of an attribute grammar, as well as the algorithm for determining its strong acyclicity.</p>
+                <p>It has been developed for the lecture <em>Compiler Construction</em> at the chair <a href="https://www.in.tum.de/en/i02/">I2</a> of the <a href="https://www.in.tum.de/">Department of Informatics</a> at the <a href="https://www.tum.de/">Technical University of Munich (TUM)</a>, under the supervision of Dr. Michael Petter.</p>
+                <p>The source code is available in the <a href="https://github.com/alglus/attribute-systems-tutor">github repository</a>.</p>
+                <p>In case you found any bug, please report it to <a href="mailto:michael.petter@tum.de">Dr. Michael Petter</a>. If the bug is related to an attribute grammar, please attach the used grammar as well.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

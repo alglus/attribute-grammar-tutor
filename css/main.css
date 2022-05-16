@@ -14,6 +14,11 @@
     src: url(../fonts/great-vibes.regular.ttf);
 }
 
+.greatVibes {
+    font-family: greatVibes, cursive;
+}
+
+
 /* Main */
 #mainContainer {
     min-width: 470px;
@@ -44,6 +49,7 @@ noscript {
     margin-left: 10px;
 }
 
+
 /* Footer */
 footer {
     flex: 1;
@@ -71,7 +77,7 @@ footer div {
 }
 
 
-/* Dependencies exercise */
+/* Local dependency exercise */
 #dependenciesExercise {
     display: none;
 }
@@ -216,7 +222,7 @@ footer div {
     position: absolute;
     width: 6px;
     height: 100%;
-    z-index: 999;
+    z-index: 999; /* needs to be under 1080, because that is the z-index of the bootstrap tooltip */
 }
 
 .leftGradient {
@@ -242,7 +248,6 @@ footer div {
     overflow: hidden;
     white-space: nowrap;
 }
-
 
 .acyclicityIterationHeader ul {
     padding: 0;
@@ -313,7 +318,6 @@ footer div {
     border: 1px solid #dfdfdf;
     border-left: 0;
 }
-
 
 .acyclicityGraphCardContainer {
     width: 402px;
@@ -402,7 +406,6 @@ footer div {
     text-align: left;
 }
 
-
 .acyclicityGraphsRow {
     overflow-x: scroll;
 }
@@ -428,7 +431,6 @@ footer div {
     border: 1px solid #dfdfdf;
     border-top-left-radius: 0.25rem;
     border-bottom-left-radius: 0.25rem;
-    font-family: greatVibes, cursive;
 }
 
 .acyclicityTransitiveRelations {
@@ -476,10 +478,6 @@ footer div {
     font-family: monospace;
 }
 
-.acyclicityTransitiveRelations label span {
-    font-family: greatVibes, cursive;
-}
-
 .acyclicityTransitiveRelations input:focus {
     outline: 0;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
@@ -488,7 +486,6 @@ footer div {
 .acyclicityTransitiveRelations input::placeholder {
     color: #ccc;
 }
-
 
 #acyclicityFooterContainer {
     display: none;
@@ -596,6 +593,53 @@ footer div {
         background-color: #0b5ed7;
         border-color: #0a58ca;
     }
+}
+
+
+/* About */
+#aboutContent img {
+    max-width: 662px;
+}
+
+
+/* Help */
+#help code {
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border: 1px solid #BCBEC0;
+    color: #111;
+    padding: 2px 5px;
+    font: 12px Monaco, Consolas, "Andale  Mono", "DejaVu Sans Mono", monospace;
+    white-space: nowrap;
+}
+
+#help kbd {
+    white-space: nowrap;
+}
+
+#helpContents {
+    font-size: .9rem;
+}
+
+#help .col-sm-1 {
+    min-width: 60px;
+}
+
+#help .col-sm-2 {
+    min-width: 130px;
+}
+
+#helpGreenEdge {
+    width: 40px;
+    height: 8px;
+    background-color: #46BB00;
+}
+
+#helpYellowEdge {
+    width: 40px;
+    height: 8px;
+    background-color: #FFBF00;
 }
 
 

@@ -384,7 +384,6 @@ function defineContainerShape() {
             z: 1,
             '.': {magnet: false}, // prevents any link to attach to this shape
             body: {
-                cursor: 'default',
                 width: 'calc(w)',
                 height: 'calc(h)',
                 rx: 5,

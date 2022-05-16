@@ -45,7 +45,7 @@ function defineLink() {
         },],
         getTools() {
             return [
-                new joint.linkTools.Vertices(),
+                new joint.linkTools.Vertices({snapRadius: 10}),
                 new joint.linkTools.Remove({distance: '50%'}),
                 new joint.linkTools.TargetArrowhead(),
             ];
