@@ -286,7 +286,7 @@ function transferTransitiveRelationFromPreviousIteration(grammar, nonterminalInd
 
         const previousIterationIndex = iterationIndex - 1;
 
-        const previousTransitiveRelationText = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).iterations[previousIterationIndex].transitiveRelationsString();
+        const previousTransitiveRelationText = $(`#transitiveRelation_${nonterminalIndex}_${previousIterationIndex}`).val();
         $(`#transitiveRelation_${nonterminalIndex}_${iterationIndex}`).val(previousTransitiveRelationText);
     }
 }
