@@ -40,12 +40,13 @@ export function recenterGraph(graph) {
 }
 
 
-export function drawDependencyGraph(graphObject, grammar, productionRule, graphType) {
+export function drawDependencyGraph(graphObject, grammar, productionRule, graphType,
+                                    nonterminalIndex, productionRuleIndex, iterationIndex) {
 
     const symbolNodes = drawSyntaxTree(graphObject, productionRule, graphType);
     const attributeNodes = addAttributesToSyntaxTree(graphObject, grammar, productionRule, symbolNodes, graphType);
 
-    linkAttributes(graphObject, productionRule, attributeNodes);
+    linkAttributes(graphObject, grammar, productionRule, attributeNodes, graphType, nonterminalIndex, productionRuleIndex, iterationIndex);
 }
 
 
@@ -103,7 +104,22 @@ function addAttributesToSyntaxTree(graphObject, grammar, productionRule, symbolN
     return attributeNodes;
 }
 
-function linkAttributes(graphObject, productionRule, attributeNodes) {
+
+function linkAttributes(graphObject, grammar, productionRule, attributeNodes, graphType,
+                        nonterminalIndex, productionRuleIndex, iterationIndex) {
+
+    addRegularAttributeLinks(graphObject, productionRule, attributeNodes);
+
+    if (graphType === GRAPH_TYPE.acyclicity && iterationIndex > 0) {
+
+        const previousIterationIndex = iterationIndex - 1;
+
+        addRedecoratedRelations(graphObject, grammar, attributeNodes, nonterminalIndex, productionRuleIndex, previousIterationIndex);
+        addRootProjections(graphObject, grammar, attributeNodes, nonterminalIndex, productionRuleIndex, previousIterationIndex);
+    }
+}
+
+function addRegularAttributeLinks(graphObject, productionRule, attributeNodes) {
 
     const productionRuleSymbols = productionRule.symbols;
 
@@ -124,6 +140,34 @@ function linkAttributes(graphObject, productionRule, attributeNodes) {
                 link.addTo(graphObject.graph);
             }
         }
+    }
+}
+
+function addRedecoratedRelations(graphObject, grammar, attributeNodes, nonterminalIndex, productionRuleIndex, iterationIndex) {
+
+    const redecoratedRelations = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].redecoratedRelations;
+
+    for (const redecoratedRelation of redecoratedRelations.values()) {
+
+        const newRedecoratedLink = joint.shapes.attrsys.RedecoratedLink.createWithRandomPadding();
+
+        newRedecoratedLink.source(attributeNodes[redecoratedRelation.fromSymbolIndex][redecoratedRelation.fromAttributeIndexInsideSymbol]);
+        newRedecoratedLink.target(attributeNodes[redecoratedRelation.toSymbolIndex][redecoratedRelation.toAttributeIndexInsideSymbol]);
+        newRedecoratedLink.addTo(graphObject.graph);
+    }
+}
+
+function addRootProjections(graphObject, grammar, attributeNodes, nonterminalIndex, productionRuleIndex, iterationIndex) {
+
+    const rootProjections = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex].iterations[iterationIndex].rootProjections;
+
+    for (const rootProjection of rootProjections.values()) {
+
+        const newRootProjectedLink = joint.shapes.attrsys.ProjectedLink.createWithRandomPadding();
+
+        newRootProjectedLink.source(attributeNodes[rootProjection.fromSymbolIndex][rootProjection.fromAttributeIndexInsideSymbol]);
+        newRootProjectedLink.target(attributeNodes[rootProjection.toSymbolIndex][rootProjection.toAttributeIndexInsideSymbol]);
+        newRootProjectedLink.addTo(graphObject.graph);
     }
 }
 

@@ -901,6 +901,13 @@ class NonterminalIteration {
 
     isStable = false;
     transitiveRelations = new Map();
+
+    transitiveRelationsString() {
+        return Array.from(this.transitiveRelations.values())
+            .map(dependency => dependency.toRelationString())
+            .sort()
+            .toString();
+    }
 }
 
 

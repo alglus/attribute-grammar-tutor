@@ -20,7 +20,9 @@ import {
 const acyclicityGraphs = [];
 
 
-/* Show exercise */
+/*
+ * Show exercise
+ */
 export function showStrongAcyclicityExercise() {
     showExerciseContainer();
     showExerciseNotEnabledWarning();
@@ -42,7 +44,9 @@ function makeSureExerciseIsCollapsed() {
 }
 
 
-/* Enable exercise */
+/*
+ * Enable exercise
+ */
 export function enableStrongAcyclicityExercise() {
     hideExerciseNotEnabledWarning();
     uncollapseExercise();
@@ -61,7 +65,9 @@ function showStrongAcyclicityQuestion() {
 }
 
 
-/* Create exercise */
+/*
+ * Create exercise
+ */
 export function createStrongAcyclicityExercise(grammar) {
 
     for (let nonterminalIndex = 0; nonterminalIndex < grammar.strongAcyclicity.nonterminals.length; nonterminalIndex++) {
@@ -154,7 +160,9 @@ function assignFunctionToShortcutEnd() {
 }
 
 
-/* Add iteration */
+/*
+ * Add iteration
+ */
 export function addIteration(grammar, iterationIndex) {
 
     for (let nonterminalIndex = 0; nonterminalIndex < grammar.strongAcyclicity.nonterminals.length; nonterminalIndex++) {
@@ -165,7 +173,7 @@ export function addIteration(grammar, iterationIndex) {
 
         addGraphCards(grammar, nonterminal, nonterminalIndex, iterationIndex);
 
-        addTransitiveRelation(nonterminal, nonterminalIndex, iterationIndex);
+        addTransitiveRelation(grammar, nonterminal, nonterminalIndex, iterationIndex);
     }
 
     addIterationFooter(iterationIndex);
@@ -215,7 +223,8 @@ function addGraph(grammar, nonterminalIndex, productionRuleIndex, iterationIndex
 
     acyclicityGraphs[nonterminalIndex][productionRuleIndex].push(graph);
 
-    drawDependencyGraph(graph, grammar, grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex], GRAPH_TYPE.acyclicity);
+    drawDependencyGraph(graph, grammar, grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).productionRules[productionRuleIndex], GRAPH_TYPE.acyclicity,
+        nonterminalIndex, productionRuleIndex, iterationIndex);
 }
 
 function setLinkTypeRadioButtonsIdAndName(linkType, nonterminalIndex, productionRuleIndex, iterationIndex) {
@@ -239,7 +248,7 @@ function setCycleFoundRadioButtonsIdAndName(yesNo, nonterminalIndex, productionR
     $(`${cycleFoundSelector} > label`).attr('for', newId);
 }
 
-function addTransitiveRelation(nonterminal, nonterminalIndex, iterationIndex) {
+function addTransitiveRelation(grammar, nonterminal, nonterminalIndex, iterationIndex) {
 
     cloneTransitiveRelation(nonterminalIndex, iterationIndex);
 
@@ -247,6 +256,8 @@ function addTransitiveRelation(nonterminal, nonterminalIndex, iterationIndex) {
 
     setTransitiveRelationName(transitiveRelationsItem, nonterminal);
     setTransitiveRelationId(transitiveRelationsItem, nonterminalIndex, iterationIndex);
+
+    transferTransitiveRelationFromPreviousIteration(grammar, nonterminalIndex, iterationIndex);
 }
 
 function cloneTransitiveRelation(nonterminalIndex, iterationIndex) {
@@ -267,6 +278,17 @@ function setTransitiveRelationId(transitiveRelationsItem, nonterminalIndex, iter
     const newId = `transitiveRelation_${nonterminalIndex}_${iterationIndex}`;
     $(`${transitiveRelationsItem} label`).attr('for', newId);
     $(`${transitiveRelationsItem} input`).attr('id', newId);
+}
+
+function transferTransitiveRelationFromPreviousIteration(grammar, nonterminalIndex, iterationIndex) {
+
+    if (iterationIndex > 0) {
+
+        const previousIterationIndex = iterationIndex - 1;
+
+        const previousTransitiveRelationText = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).iterations[previousIterationIndex].transitiveRelationsString();
+        $(`#transitiveRelation_${nonterminalIndex}_${iterationIndex}`).val(previousTransitiveRelationText);
+    }
 }
 
 function addIterationFooter(iterationIndex) {
@@ -324,7 +346,9 @@ function assignFunctionToShortcutNext(grammar, iterationIndex) {
 }
 
 
-/* Scroll */
+/*
+ * Scroll
+ */
 function scrollToBeginningOfNewIteration(newIterationIndex) {
     const iterationHeadingListSelector = '.acyclicityIterationHeaderList[data-nonterminal=0]';
     const newIterationTitle = $(`${iterationHeadingListSelector} > li`).eq(newIterationIndex);
@@ -394,7 +418,9 @@ function scrollToFarRight(scrollSelector) {
 }
 
 
-/* Check */
+/*
+ * Check
+ */
 function assignFunctionToCheckButton(grammar, iterationIndex) {
     const checkButton = $(`#iterationCheck_${iterationIndex}`);
     checkButton.click(() => checkIteration(grammar, iterationIndex));
@@ -459,7 +485,9 @@ function iterationUnstable(grammar, iterationIndex) {
 }
 
 
-/* Errors */
+/*
+ * Errors
+ */
 const tooltips = [];
 
 function clearCheckIterationErrors(iterationIndex) {
@@ -579,7 +607,9 @@ function removeAllTooltips() {
 }
 
 
-/* Freeze iteration */
+/*
+ * Freeze iteration
+ */
 function freezeIteration(grammar, iterationIndex) {
     disableCycleFoundRadioButtons(iterationIndex);
     disableTransitiveRelationInput(iterationIndex);
@@ -619,7 +649,9 @@ function disableAllGraphs(grammar, iterationIndex) {
 }
 
 
-/* Freeze strong acyclicity */
+/*
+ * Freeze strong acyclicity
+ */
 export function freezeStrongAcyclicityQuestion() {
     disable($('#acyclicYes'));
     disable($('#acyclicNo'));
@@ -633,7 +665,9 @@ function unfreezeStrongAcyclicityQuestion() {
 }
 
 
-/* Delete exercise */
+/*
+ * Delete exercise
+ */
 export function deleteStrongAcyclicityExercise() {
     hideExerciseContainer();
     hideStrongAcyclicityQuestion();

@@ -37,10 +37,7 @@ export function checkIterationStable(grammar, actualAnswer, iterationIndex) {
 
 export function checkTransitiveRelations(grammar, actualRelationsAnswer, nonterminalIndex, iterationIndex) {
 
-    const expectedRelations = Array.from(grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).iterations[iterationIndex].transitiveRelations.values())
-        .map(dependency => dependency.toRelationString())
-        .sort()
-        .toString();
+    const expectedRelations = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex).iterations[iterationIndex].transitiveRelationsString();
 
     const relationMatcher = /.*?(\(.+?\)).*?/g;
     const relationsMatchResult = actualRelationsAnswer.matchAll(relationMatcher);
