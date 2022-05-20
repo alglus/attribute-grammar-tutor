@@ -12,7 +12,7 @@
     <title>Attribute Grammar Tutor</title>
 </head>
 <body>
-<div id="mainContainer" class="container">
+<div id="mainContainer" class="container d-flex flex-column">
 
     <!-- Warning for mobile devices -->
     <div id="mobileWarning" class="alert alert-warning align-items-center mt-3 text-center mx-auto" role="alert">
@@ -25,12 +25,12 @@
     <!-- Header -->
     <header class="mt-2">
         <h1 class="float-start">Attribute Grammar Tutor</h1>
-        <button id="aboutBtn" type="button" class="headerButtons btn btn-outline-secondary btn-sm float-end" title="About" data-bs-toggle="modal" data-bs-target="#about">
+        <button id="aboutBtn" type="button" class="btn btn-outline-secondary btn-sm float-end mt-3" title="About" data-bs-toggle="modal" data-bs-target="#about">
             <svg class="bi bi-info-circle" width="16" height="16" role="img" aria-label="About">
                 <use xlink:href="#info-circle"/>
             </svg>
         </button>
-        <button id="helpBtn" type="button" class="headerButtons btn btn-outline-secondary btn-sm float-end" title="Help" data-bs-toggle="modal" data-bs-target="#help">
+        <button id="helpBtn" type="button" class="btn btn-outline-secondary btn-sm float-end mt-3" title="Help" data-bs-toggle="modal" data-bs-target="#help">
             <svg class="bi bi-question-circle" width="16" height="16" role="img" aria-label="Help">
                 <use xlink:href="#question-circle"/>
             </svg>
@@ -41,7 +41,7 @@
         <!-- Grammar input -->
         <div class="input-group pt-4 mb-2">
             <span class="input-group-text">Attribute <br>Grammar</span>
-            <div class="form-control" id="grammarInputWrapper"></div>
+            <div id="grammarInputWrapper" class="form-control p-0"></div>
         </div>
 
         <!-- Grammar buttons -->
@@ -54,7 +54,7 @@
         </noscript>
 
         <!-- Grammar errors -->
-        <ul class="list-group pt-3" id="grammarErrorMessages"></ul>
+        <ul id="grammarErrorMessages" class="list-group pt-3"></ul>
 
         <!-- Local dependencies exercise -->
         <div id="dependenciesExercise" class="accordion pt-4">

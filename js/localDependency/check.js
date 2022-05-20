@@ -1,11 +1,10 @@
-import {HIGHLIGHT_AREA} from "./joint.attrsys.js";
-import {chooseOneAtRandom, ERROR} from "./utils.js";
+import {HIGHLIGHT_AREA} from "../joint/attrsys.js";
+import {chooseOneAtRandom, ERROR} from "../utils.js";
 
 
 export function checkLocalDependencyGraph(graphObject, grammar, productionRuleIndex, graphErrors) {
     const productionRule = grammar.productionRules[productionRuleIndex];
 
-    const jointPaper = graphObject.paper;
     const jointGraph = graphObject.graph;
 
     const allElementNodes = jointGraph.getElements();

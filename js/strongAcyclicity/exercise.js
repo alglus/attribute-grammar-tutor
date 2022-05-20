@@ -6,15 +6,15 @@ import {
     enable,
     ERROR,
     scrollTo
-} from "./utils.js";
-import {AcyclicityGraph} from "./graph.js";
-import {drawDependencyGraph, GRAPH_TYPE} from "./drawDependencyGraph.js";
+} from "../utils.js";
+import {AcyclicityGraph} from "../joint/graph.js";
+import {drawDependencyGraph, GRAPH_TYPE} from "../joint/drawGraph.js";
 import {
     checkAcyclicityGraph,
     checkCycleFound,
     checkIterationStable, checkStrongAcyclicity,
     checkTransitiveRelations
-} from "./checkAcyclicityGraph.js";
+} from "./check.js";
 
 
 const acyclicityGraphs = [];

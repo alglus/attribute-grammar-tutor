@@ -1,9 +1,13 @@
-import {emptyArray} from './utils.js';
-import {GRAPH_TYPE} from "./drawDependencyGraph.js";
-import {newSymbol, SYMBOL_HEIGHT, SYMBOL_WIDTH} from "./joint.attrsys.js";
-import {hideGraphCorrectIcon, resetErrors} from './localDependencyExercise.js';
+import {emptyArray} from '../utils.js';
+import {GRAPH_TYPE} from "./drawGraph.js";
+import {newSymbol, SYMBOL_HEIGHT, SYMBOL_WIDTH} from "./attrsys.js";
+import {hideGraphCorrectIcon, resetErrors} from '../localDependency/exercise.js';
 
 
+/**
+ * Parent class of both graph classes.
+ * It creates and stores the jointJS graph and paper objects and provides several useful methods.
+ */
 export class Graph {
 
     static MIN_SCALE = 0.2;
@@ -20,7 +24,7 @@ export class Graph {
         this.#defineOnPaperEvents(this.paper, this.graph, graphContainer, grammar, productionIndex);
     }
 
-    /**
+    /*
      * Returns all roots of the syntax tree.
      * There can be several roots, if there are several disconnected components in the graph.
      */
@@ -31,7 +35,7 @@ export class Graph {
         return this.graph.getSources().filter(e => e.isSymbol());
     }
 
-    /**
+    /*
      * Return the children of the root, sorted by their x coordinate, from left to right.
      * After sorting, assign to the nodes of the syntax tree the corresponding indexes.
      */
@@ -52,7 +56,7 @@ export class Graph {
         return children;
     }
 
-    /**
+    /*
      * Returns all symbol nodes, i.e. the nodes of the syntax tree.
      */
     getSymbols() {
@@ -193,6 +197,9 @@ export class Graph {
 }
 
 
+/**
+ * Graph for the local dependency exercise.
+ */
 export class DependencyGraph extends Graph {
 
     constructor(graphContainer, grammar, productionIndex) {
@@ -349,6 +356,9 @@ export class DependencyGraph extends Graph {
 }
 
 
+/**
+ * Graph for the strong acyclicity exercise.
+ */
 export class AcyclicityGraph extends Graph {
 
     constructor(graphContainer, grammar, productionIndex, linkTypeInputName) {

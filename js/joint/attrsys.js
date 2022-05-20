@@ -1,7 +1,7 @@
-import {getLongestStringLengthInSet} from './utils.js';
-import {defineAttrsysLinks} from "./joint.attrsys.Link.js";
-import {defineAttrsysElements} from "./joint.attrsys.Element.js";
-import {GRAPH_TYPE} from "./drawDependencyGraph.js";
+import {getLongestStringLengthInSet} from '../utils.js';
+import {defineAttrsysLinks} from "./attrsys.Link.js";
+import {defineAttrsysElements} from "./attrsys.Element.js";
+import {GRAPH_TYPE} from "./drawGraph.js";
 
 export let SYMBOL_WIDTH;
 export let SYMBOL_HEIGHT;

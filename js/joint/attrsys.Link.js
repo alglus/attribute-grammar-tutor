@@ -1,5 +1,5 @@
-import {DARK_GREY, ERROR_DARK_RED, LIGHT_GREY} from "./joint.attrsys.js";
-import {getRandomIntInclusive} from "./utils.js";
+import {DARK_GREY, ERROR_DARK_RED, LIGHT_GREY} from "./attrsys.js";
+import {getRandomIntInclusive} from "../utils.js";
 
 export function defineAttrsysLinks() {
 

@@ -1,17 +1,17 @@
-import {disable, enable, ERROR, textIsEmpty} from './utils.js';
+import {disable, enable, ERROR, textIsEmpty} from '../utils.js';
 import {Grammar} from './grammar.js';
 import {
     createLocalDependencyExercise,
     deleteLocalDependencyExercise,
     showLocalDependencyExercise,
-} from './localDependencyExercise.js';
-import {grammarInput} from "./init.js";
+} from '../localDependency/exercise.js';
+import {grammarInputField} from "../init.js";
 import {
     createStrongAcyclicityExercise,
     deleteStrongAcyclicityExercise,
     showStrongAcyclicityExercise
-} from "./strongAcyclicityExercise.js";
-import {defineJointAttrsysObjects} from "./joint.attrsys.js";
+} from "../strongAcyclicity/exercise.js";
+import {defineJointAttrsysObjects} from "../joint/attrsys.js";
 
 
 export function applyGrammar(grammarText) {
@@ -104,20 +104,20 @@ function disableEditButton() {
 
 function enableGrammarInput() {
     // Set input as editable.
-    grammarInput.setOption('readOnly', false);
+    grammarInputField.setOption('readOnly', false);
 
     // Change the text colour back to black.
-    grammarInput.getDoc().eachLine((line) => {
-        grammarInput.getDoc().removeLineClass(line, 'wrap', 'disabledText')
+    grammarInputField.getDoc().eachLine((line) => {
+        grammarInputField.getDoc().removeLineClass(line, 'wrap', 'disabledText')
     });
 }
 
 function disableGrammarInput() {
     // Set input as non-editable.
-    grammarInput.setOption('readOnly', true);
+    grammarInputField.setOption('readOnly', true);
 
     // Change the text colour to light grey.
-    grammarInput.getDoc().eachLine((line) => {
-        grammarInput.getDoc().addLineClass(line, 'wrap', 'disabledText')
+    grammarInputField.getDoc().eachLine((line) => {
+        grammarInputField.getDoc().addLineClass(line, 'wrap', 'disabledText')
     });
 }

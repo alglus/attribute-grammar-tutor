@@ -24,8 +24,6 @@
     min-width: 470px;
     height: 100vh;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
 #mobileWarning {
@@ -41,10 +39,6 @@ noscript {
 
 
 /* Header */
-.headerButtons {
-    margin-top: 1rem;
-}
-
 #aboutBtn {
     margin-left: 10px;
 }
@@ -68,10 +62,6 @@ footer div {
 
 
 /* Grammar input */
-#grammarInputWrapper {
-    padding: 0;
-}
-
 #grammarErrorMessages {
     display: none;
 }
@@ -120,6 +110,8 @@ footer div {
     z-index: 5;
 
     border-radius: 0.5rem;
+    -moz-border-radius: 0.5rem;
+    -webkit-border-radius: 0.5rem;
     background: #f8d7da;
     opacity: 90%;
 
@@ -261,6 +253,8 @@ footer div {
     line-height: 40px;
     margin: 0 1rem;
     border-radius: 0.25rem;
+    -moz-border-radius: 0.25rem;
+    -webkit-border-radius: 0.25rem;
     font-size: 1rem;
     text-align: center;
     vertical-align: center;
@@ -277,6 +271,8 @@ footer div {
     background-color: #e7f1ff;
     border: 1px solid #dfdfdf;
     border-radius: 0.25rem;
+    -moz-border-radius: 0.25rem;
+    -webkit-border-radius: 0.25rem;
 }
 
 .acyclicityProductionRules {
@@ -304,13 +300,17 @@ footer div {
     flex: 0 0 40px;
     justify-content: center;
     align-items: center;
-    writing-mode: vertical-rl; /* vertical text */
-    transform: rotate(180deg); /* spin to orient as required */
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
     font-family: sometypeMono, monospace;
     background-color: #f7f7f7;
     border: 1px solid #dfdfdf;
     border-top-right-radius: 0.25rem;
+    -moz-border-radius-topright: 0.25rem;
+    -webkit-border-top-right-radius: 0.25rem;
     border-bottom-right-radius: 0.25rem;
+    -moz-border-radius-bottomright: 0.25rem;
+    -webkit-border-bottom-right-radius: 0.25rem;
 }
 
 .acyclicityGraphsRow {
@@ -352,6 +352,8 @@ footer div {
     height: 14px;
     border: 3px solid #fff;
     border-radius: 2px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
     transition: all 0.2s ease;
 }
 
@@ -430,7 +432,11 @@ footer div {
     background-color: #f7f7f7;
     border: 1px solid #dfdfdf;
     border-top-left-radius: 0.25rem;
+    -moz-border-radius-topleft: 0.25rem;
+    -webkit-border-top-left-radius: 0.25rem;
     border-bottom-left-radius: 0.25rem;
+    -moz-border-radius-bottomleft: 0.25rem;
+    -webkit-border-bottom-left-radius: 0.25rem;
 }
 
 .acyclicityTransitiveRelations {
@@ -454,6 +460,8 @@ footer div {
     line-height: 35px;
     margin: 0 16px;
     border-radius: 0.25rem;
+    -moz-border-radius: 0.25rem;
+    -webkit-border-radius: 0.25rem;
     font-size: 1rem;
     vertical-align: center;
     align-items: center;
@@ -520,6 +528,8 @@ footer div {
     text-align: center;
     vertical-align: center;
     border-radius: 0.25rem;
+    -moz-border-radius: 0.25rem;
+    -webkit-border-radius: 0.25rem;
     border: 1px solid #dfdfdf;
 }
 

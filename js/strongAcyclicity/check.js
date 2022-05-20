@@ -1,19 +1,17 @@
 import {
-    arrayIsEmpty,
     chooseOneAtRandom,
-    disable,
     ERROR,
     removeAllWhiteSpaces, scrollTo,
     setIsEmpty,
     symbolIsRoot
-} from "./utils.js";
+} from "../utils.js";
 import {
     addHTMLTooltip,
     addTooltip, clearCheckStrongAcyclicityErrors, freezeStrongAcyclicityQuestion,
     highlightRadioAsError,
     highlightTextAsError,
     highlightTextInputAsError
-} from "./strongAcyclicityExercise.js";
+} from "./exercise.js";
 
 
 export function checkIterationStable(grammar, actualAnswer, iterationIndex) {

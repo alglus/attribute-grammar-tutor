@@ -1,7 +1,4 @@
-import {
-    arrayHasDuplicateValues,
-    parameterHasBeenSpecified
-} from "./utils.js";
+import {arrayHasDuplicateValues, parameterHasBeenSpecified} from "../utils.js";
 import {
     ATTRIBUTE_HEIGHT,
     ATTRIBUTE_WIDTH, DARK_GREY, ERROR_DARK_RED, ERROR_LIGHT_RED,
@@ -12,8 +9,8 @@ import {
     SPACING_BETWEEN_ATTRIBUTES_Y,
     SYMBOL_HEIGHT,
     SYMBOL_WIDTH
-} from "./joint.attrsys.js";
-import {GRAPH_TYPE} from "./drawDependencyGraph.js";
+} from "./attrsys.js";
+import {GRAPH_TYPE} from "./drawGraph.js";
 
 const FONT_FAMILY = 'sometypeMono';
 const FONT_SIZE = 15;
@@ -43,7 +40,6 @@ function defineSymbolShape() {
         currentNameIndex: 0,
         size: {width: SYMBOL_WIDTH, height: SYMBOL_HEIGHT},
         attrs: {
-            // z: 4,
             root: {
                 // Defines around which part to highlight, when a link is hovering over it.
                 highlighterSelector: 'body',
@@ -113,7 +109,7 @@ function defineSymbolShape() {
             this.prop('attrs/root/title', name);
         },
         setIndex(index) {
-           this.prop('symbolIndex', index);
+            this.prop('symbolIndex', index);
         },
         getIndex() {
             return this.prop('symbolIndex');
@@ -534,9 +530,8 @@ function getNewConnectTool(cell) {
             attributes: {
                 'width': cell.size().width,
                 'height': cell.size().height,
-                // 'z': 5,
                 'fill': 'none',
-                'stroke-width': 5,
+                'stroke-width': 8,
                 'rx': cell.prop('attrs/body/rx'),
                 'ry': cell.prop('attrs/body/ry'),
                 'stroke-opacity': 0.4,

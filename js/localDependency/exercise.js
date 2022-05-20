@@ -1,14 +1,14 @@
-import {DependencyGraph, Graph} from './graph.js';
-import {checkLocalDependencyGraph} from "./checkLocalDependencyGraph.js";
-import {arrayIsEmpty, cloneElementAndSetNewAttributeValue, emptyArray} from './utils.js';
+import {DependencyGraph} from '../joint/graph.js';
+import {checkLocalDependencyGraph} from "./check.js";
+import {arrayIsEmpty, cloneElementAndSetNewAttributeValue, emptyArray} from '../utils.js';
 import {
     drawDependencyGraph,
     drawSyntaxTree,
     GRAPH_TYPE,
     recenterGraph,
     recenterIfGraphOutOfFrame
-} from "./drawDependencyGraph.js";
-import {addIteration, enableStrongAcyclicityExercise} from "./strongAcyclicityExercise.js";
+} from "../joint/drawGraph.js";
+import {addIteration, enableStrongAcyclicityExercise} from "../strongAcyclicity/exercise.js";
 
 
 const localDependencyGraphs = [];

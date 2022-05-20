@@ -9,7 +9,7 @@ import {
     containsAny,
     IndexedMap,
     isInArray, getOrCreateArray, emptyArray, arrayIsEmpty, mapKeysAreEqual, getPenultimateArrayItem, symbolIsRoot
-} from './utils.js';
+} from '../utils.js';
 
 
 /**
@@ -891,6 +891,7 @@ class Nonterminal {
     }
 }
 
+
 /**
  * Nonterminal iteration class
  */
@@ -901,6 +902,7 @@ class NonterminalIteration {
     isStable = false;
     transitiveRelations = new Map();
 }
+
 
 /**
  * Production rule iteration class

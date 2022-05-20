@@ -1,7 +1,7 @@
-import {applyGrammar, editGrammar} from './grammarButtons.js';
-import {clearAllGraphs} from './localDependencyExercise.js';
+import {applyGrammar, editGrammar} from './grammar/grammarInput.js';
+import {clearAllGraphs} from './localDependency/exercise.js';
 
-export let grammarInput;
+export let grammarInputField;
 
 $(document).ready(function () {
 
@@ -13,7 +13,7 @@ $(document).ready(function () {
 
     // Set function for the 'Apply' button.
     $('#applyGrammarButton').click(function () {
-        applyGrammar(grammarInput.getDoc().getValue());
+        applyGrammar(grammarInputField.getDoc().getValue());
     });
 
 
@@ -33,7 +33,7 @@ $(document).ready(function () {
 
 
     // Replace the textarea for the Attribute Grammar with a CodeMirror instance, in order to provide line numbering.
-    grammarInput = CodeMirror(document.getElementById('grammarInputWrapper'), {
+    grammarInputField = CodeMirror(document.getElementById('grammarInputWrapper'), {
         lineNumbers: true,
         lineWrapping: true,
         value: 'S -> A   : z[0] = z[1]; c[1] = 0\n' +

@@ -6,8 +6,8 @@ import {
     PAPER_MARGIN_Y, SPACE_BETWEEN_SYMBOL_AND_ATTRIBUTES, SPACING_BETWEEN_ATTRIBUTES_X,
     SPACING_BETWEEN_CONTAINERS, SYMBOL_HEIGHT,
     SYMBOL_WIDTH
-} from "./joint.attrsys.js";
-import {findEmptySpotForNewAttribute} from "./joint.attrsys.Element.js";
+} from "./attrsys.js";
+import {findEmptySpotForNewAttribute} from "./attrsys.Element.js";
 
 
 export const GRAPH_TYPE = Object.freeze({localDependency: 0, acyclicity: 1});
