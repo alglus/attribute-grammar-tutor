@@ -76,9 +76,7 @@ export function createStrongAcyclicityExercise(grammar) {
 
         const nonterminal = grammar.strongAcyclicity.nonterminals.getAt(nonterminalIndex);
 
-        // if (nonterminalIndex > 0) {
         cloneNonterminalContainer(nonterminalIndex);
-        // }
 
         setNonterminalTitle(nonterminal, nonterminalIndex);
 
@@ -111,9 +109,7 @@ function createProductionRuleContainers(nonterminal, nonterminalIndex) {
 
         acyclicityGraphs[nonterminalIndex].push([]); // Add arrays for the iterations.
 
-        // if (productionRuleIndex > 0) {
         cloneProductionRuleContainer(productionRuleIndex, nonterminalIndex);
-        // }
 
         const productionRule = nonterminal.productionRules[productionRuleIndex];
 

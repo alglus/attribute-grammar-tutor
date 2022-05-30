@@ -94,7 +94,7 @@ export class Grammar {
         const leftNonterminal = productionLeftSymbols[0];
 
         if (textIsEmpty(leftNonterminal)) {
-            this.#addError(lineNumber, productionRuleText, 'A nonterminal is missing on the left side of the production.');
+            this.#addError(lineNumber, productionRuleText, 'A non-terminal is missing on the left-hand side of the production.');
             return ERROR;
         }
 
@@ -104,7 +104,7 @@ export class Grammar {
         }
 
         if (productionLeftSymbols.length > 1) {
-            this.#addError(lineNumber, productionRuleText, 'There may only be one nonterminal on the left side of a production rule.');
+            this.#addError(lineNumber, productionRuleText, 'There may only be one non-terminal on the left-hand side of a production rule.');
             return ERROR;
         }
 
@@ -195,12 +195,12 @@ export class Grammar {
         const matchedLeftAttributes = Array.from(equationLeftHalf.matchAll(attributeNameAndIndexMatcher));
 
         if (!matchedLeftAttributes || matchedLeftAttributes.length === 0) {
-            this.#addError(lineNumber, attributeEquation, 'The attribute on the left hand side of the equation is wrongly formatted.');
+            this.#addError(lineNumber, attributeEquation, 'The attribute on the left-hand side of the equation is wrongly formatted.');
             return ERROR;
         }
 
         if (matchedLeftAttributes.length > 1) {
-            this.#addError(lineNumber, attributeEquation, 'There can only be one attribute on the left of the equation.');
+            this.#addError(lineNumber, attributeEquation, 'There can only be one attribute on the left-hand side of the equation.');
             return ERROR;
         }
 

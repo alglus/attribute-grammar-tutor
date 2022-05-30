@@ -5,17 +5,14 @@ export const ERROR = -1;
 /* Strings */
 export function textIsEmpty(text) {
     return (text.trim() === '');
-
 }
 
 export function splitIntoRows(text) {
     return text.split('\n');
-
 }
 
 export function splitIntoWords(text) {
     return text.trim().split(' ');
-
 }
 
 export function replaceMultipleWhiteSpacesByOne(text) {
@@ -28,7 +25,6 @@ export function removeAllWhiteSpaces(text) {
 
 export function containsAny(string, substringsArray) {
     return substringsArray.some(substr => string.includes(substr));
-
 }
 
 
@@ -143,10 +139,6 @@ export function symbolIsRoot(symbolIndex) {
     return symbolIndex === 0;
 }
 
-export function scrollTo(jQuerySelector) {
-    jQuerySelector.get(0).scrollIntoView({behavior: 'smooth'})
-}
-
 
 /* jQuery */
 export function disable(jQuerySelector) {
@@ -155,6 +147,10 @@ export function disable(jQuerySelector) {
 
 export function enable(jQuerySelector) {
     jQuerySelector.prop('disabled', false);
+}
+
+export function scrollTo(jQuerySelector) {
+    jQuerySelector.get(0).scrollIntoView({behavior: 'smooth'})
 }
 
 
