@@ -18,6 +18,19 @@
     font-family: greatVibes, cursive;
 }
 
+/* Bootstrap */
+.form-check {
+    padding-left: 0;
+}
+
+.form-check .form-check-input {
+    margin-left: 0;
+}
+
+.form-check-label {
+    padding-left: 0.5rem;
+}
+
 
 /* Main */
 #mainContainer {
@@ -541,17 +554,18 @@ footer div {
 
 .acyclicityIterationFooter p {
     padding: 0;
-    margin: auto 0;
+    margin: auto 1rem auto 0.5rem;
 }
 
 .acyclicityIterationFooter div {
-    margin: auto 0 auto 1rem;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .shortcutNext {
     position: absolute;
     top: 3px;
-    left: -13px;
+    left: 3px;
     width: 10px;
     height: 10px;
     background-color: #f7f7f7;
