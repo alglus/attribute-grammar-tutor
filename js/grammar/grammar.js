@@ -345,7 +345,7 @@ export class Grammar {
         for (const symbol of this.#allSymbolNames) {
 
             // A nonterminal is a symbol X, for which there is a production rule, eg.: X -> Y z.
-            // All nonterminals have been computed, when parsing the production rules.
+            // All non-terminals have been computed, when parsing the production rules.
             // So the terminals are all the remaining symbols, which are not contained in the nonterminal set.
             if (!this.#allNonterminalNames.has(symbol)) {
                 this.#allTerminalNames.add(symbol);
@@ -857,7 +857,7 @@ class Nonterminal {
         this.iterations.push(new NonterminalIteration());
     }
 
-    /* In the algorithm to calculate the strong acyclicity, we are looping through all nonterminals in each iteration.
+    /* In the algorithm to calculate the strong acyclicity, we are looping through all non-terminals in each iteration.
      * - CASE 1: This is the easy one. If it is the first iteration, there are no previous ones, so we return an empty object.
      * - CASE 3: When we come to a new nonterminal in our loop, we first add a NonterminalIteration and then use
      *           the getPreviousIteration() function. Say we are at iterationIndex = 1. After adding a NonterminalIteration,

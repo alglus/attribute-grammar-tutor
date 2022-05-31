@@ -305,7 +305,7 @@ export class DependencyGraph extends Graph {
                         }
                     })
             },
-            'cell:mouseleave': function (cellView) {
+            'cell:mouseleave': function () {
                 graphContainer
                     .attr('tabindex', 1)
                     .off('mouseover')
@@ -383,7 +383,7 @@ export class AcyclicityGraph extends Graph {
     }
 
     #setPaperDefaultLinks(linkTypeInputName) {
-        this.paper.options.defaultLink = function (cellView) {
+        this.paper.options.defaultLink = function () {
 
             const linkType = $(`input[name=${linkTypeInputName}]:checked`).val();
 
@@ -439,7 +439,7 @@ export class AcyclicityGraph extends Graph {
                         });
                 }
             },
-            'cell:mouseleave': function (cellView) {
+            'cell:mouseleave': function () {
                 graphContainer
                     .attr('tabindex', 1)
                     .off('mouseover')

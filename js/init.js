@@ -9,7 +9,7 @@ $(document).ready(function () {
     if (window.matchMedia("(hover: none)").matches) {
         // hover unavailable
         $('#mobileWarning').css('display', 'flex');
-    };
+    }
 
     // Set function for the 'Apply' button.
     $('#applyGrammarButton').click(function () {
