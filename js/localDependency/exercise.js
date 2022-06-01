@@ -29,7 +29,7 @@ function makeSureExerciseIsNotCollapsed() {
     // If the dependencies exercise has been collapsed before clicking the edit button, then it will stay collapsed
     // after pressing ApplyGrammar again. In order to prevent this, we check if the exercise was collapsed by searching
     // for the corresponding class and then 'manually clicking' that button to open the accordion.
-    $('#dependenciesCollapseBtn.collapsed').click();
+    $('#dependenciesCollapseBtn.collapsed').trigger('click');
 }
 
 
@@ -98,7 +98,7 @@ function setTitleOfGraphCard(productionRuleIndex, grammar) {
 }
 
 function setFunctionForRecenterButton(productionRuleIndex) {
-    $(`.dependenciesRecenterBtn[data-index=${productionRuleIndex}]`).click(() => recenterGraph(localDependencyGraphs[productionRuleIndex]));
+    $(`.dependenciesRecenterBtn[data-index=${productionRuleIndex}]`).on('click',() => recenterGraph(localDependencyGraphs[productionRuleIndex]));
 }
 
 function createNewGraph(productionRuleIndex, grammar) {
@@ -114,13 +114,13 @@ function createNewGraph(productionRuleIndex, grammar) {
 function setFunctionForCheckButton(productionRuleIndex, grammar) {
 
     const checkButton = $(`.dependenciesCheckBtn[data-index=${productionRuleIndex}]`);
-    checkButton.click(() => check(productionRuleIndex, grammar));
+    checkButton.on('click',() => check(productionRuleIndex, grammar));
 }
 
 function setFunctionForCheckAllButton(grammar) {
 
     const checkAllButton = $('#dependenciesCheckAllBtn');
-    checkAllButton.click(() => checkAll(grammar));
+    checkAllButton.on('click',() => checkAll(grammar));
 }
 
 function checkAll(grammar) {
@@ -153,7 +153,7 @@ export function clearAllGraphs() {
 function setFunctionForClearButton(productionRuleIndex) {
 
     const graphClearButton = $(`.dependenciesClearBtn[data-index=${productionRuleIndex}]`);
-    graphClearButton.click(() => clearGraph(productionRuleIndex));
+    graphClearButton.on('click',() => clearGraph(productionRuleIndex));
 }
 
 function clearGraph(graphIndex) {
@@ -168,7 +168,7 @@ function setFunctionForDrawAllTreesButton(grammar) {
 
     const drawAllTreesButton = $('#dependenciesDrawAllBtn');
 
-    drawAllTreesButton.click(function () {
+    drawAllTreesButton.on('click',function () {
         clearAllGraphs();
         drawAllSyntaxTrees(grammar);
     });
@@ -178,7 +178,7 @@ function setFunctionForDrawTreeButton(productionRuleIndex, grammar) {
 
     const drawTreeButton = $(`.dependenciesDrawBtn[data-index=${productionRuleIndex}]`);
 
-    drawTreeButton.click(function () {
+    drawTreeButton.on('click',function () {
         clearGraph(productionRuleIndex);
         drawSyntaxTree(localDependencyGraphs[productionRuleIndex], grammar.productionRules[productionRuleIndex], GRAPH_TYPE.localDependency);
         recenterIfGraphOutOfFrame(localDependencyGraphs[productionRuleIndex]);
@@ -203,7 +203,7 @@ function setFunctionForShowAllSolutionsButton(grammar) {
 
     const showAllSolutionsButton = $('#dependenciesAllSolutionsBtn');
 
-    showAllSolutionsButton.click(function () {
+    showAllSolutionsButton.on('click',function () {
         clearAllGraphs();
         showAllSolutions(grammar);
     });
@@ -213,7 +213,7 @@ function setFunctionForShowSolutionButton(productionRuleIndex, grammar) {
 
     const showSolutionButton = $(`.dependenciesSolutionBtn[data-index=${productionRuleIndex}]`);
 
-    showSolutionButton.click(function () {
+    showSolutionButton.on('click',function () {
         clearGraph(productionRuleIndex);
         showSolution(productionRuleIndex, grammar)
         recenterIfGraphOutOfFrame(localDependencyGraphs[productionRuleIndex]);
@@ -237,7 +237,7 @@ function showSolution(graphIndex, grammar) {
 
 /* Errors */
 function setFunctionForShowErrorsButton(productionRuleIndex) {
-    $(`.showGraphErrorsBtn[data-index=${productionRuleIndex}]`).click(() => toggleGraphErrorsVisibility(productionRuleIndex));
+    $(`.showGraphErrorsBtn[data-index=${productionRuleIndex}]`).on('click',() => toggleGraphErrorsVisibility(productionRuleIndex));
 }
 
 

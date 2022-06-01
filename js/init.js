@@ -3,7 +3,7 @@ import {clearAllGraphs} from './localDependency/exercise.js';
 
 export let grammarInputField;
 
-$(document).ready(function () {
+$(function () {
 
     // Check if it is a mobile device and show a warning.
     if (window.matchMedia("(hover: none)").matches) {
@@ -12,13 +12,13 @@ $(document).ready(function () {
     }
 
     // Set function for the 'Apply' button.
-    $('#applyGrammarButton').click(function () {
+    $('#applyGrammarButton').on('click',function () {
         applyGrammar(grammarInputField.getDoc().getValue());
     });
 
 
     // Set function for the 'Edit' button.
-    $('#editGrammarButton').click(function () {
+    $('#editGrammarButton').on('click', function () {
         editGrammar();
     });
 
@@ -27,7 +27,7 @@ $(document).ready(function () {
     //
     // It can be set just once at the very beginning, because it does not depend on any parameter.
     // And it can be done right on document load, because the button is unique and is already in the html, just hidden.
-    $('#dependenciesClearAllBtn').click(function () {
+    $('#dependenciesClearAllBtn').on('click',function () {
         clearAllGraphs();
     });
 

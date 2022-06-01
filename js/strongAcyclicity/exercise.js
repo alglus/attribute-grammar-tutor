@@ -40,7 +40,7 @@ function showExerciseNotEnabledWarning() {
 function makeSureExerciseIsCollapsed() {
     // Make sure that the strong acyclicity exercise is created in a collapsed state,
     // because it is only solvable after the first exercise has been complete.
-    $('#acyclicityCollapseBtn:not(.collapsed)').click();
+    $('#acyclicityCollapseBtn:not(.collapsed)').trigger('click');
 }
 
 
@@ -57,7 +57,7 @@ function hideExerciseNotEnabledWarning() {
 }
 
 function uncollapseExercise() {
-    $('#acyclicityCollapseBtn.collapsed').click();
+    $('#acyclicityCollapseBtn.collapsed').trigger('click');
 }
 
 function showStrongAcyclicityQuestion() {
@@ -419,7 +419,7 @@ function scrollToFarRight(scrollSelector) {
  */
 function assignFunctionToCheckButton(grammar, iterationIndex) {
     const checkButton = $(`#iterationCheck_${iterationIndex}`);
-    checkButton.click(() => checkIteration(grammar, iterationIndex));
+    checkButton.on('click',() => checkIteration(grammar, iterationIndex));
 }
 
 function checkIteration(grammar, iterationIndex) {

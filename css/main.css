@@ -32,6 +32,20 @@
 }
 
 
+/* Codemirror */
+.CodeMirror {
+    height: 100%;
+    line-height: 1.5;
+    font-size: 1rem;
+    color:#212529;
+    border-radius: 0.25rem;
+}
+
+.disabledText {
+    color: #999;
+}
+
+
 /* Main */
 #mainContainer {
     min-width: 470px;
