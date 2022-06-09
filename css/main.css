@@ -37,7 +37,7 @@
     height: 100%;
     line-height: 1.5;
     font-size: 1rem;
-    color:#212529;
+    color: #212529;
     border-radius: 0.25rem;
 }
 
@@ -687,8 +687,13 @@ footer div {
 }
 
 
-/* JointJS */
+/* General */
+a[target="_blank"]:after {
+    content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+    margin: 0 3px 0 5px;
+}
 
+/* JointJS */
 .joint-tool[data-tool-name="connect"]:not(:hover) {
     opacity: 0;
 }
