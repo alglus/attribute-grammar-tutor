@@ -90,7 +90,12 @@ function defineAttributeLink(attrsysLink) {
             name: 'manhattan', args: {
                 // The step is the virtual grid, to which the manhattan route snaps to.
                 // Reduce it from the default=10, so that the random padding can use more of its values.
-                step: 2
+                step: 4,
+
+                // This parameter limits the number of iterations, which the path finding algorithm can use,
+                // until it gives up. When it reaches the set maximumLoops, it resorts to the basic orthogonal route.
+                // Raise this number from the default=2000, to avoid having orthogonal routes covering up nodes.
+                maximumLoops: 5000,
             }
         },
     }, {}, {
@@ -98,9 +103,10 @@ function defineAttributeLink(attrsysLink) {
             const newLink = new this();
 
             // Randomise the padding, so that nearby links do not overlap, and it is easier to tell them apart.
-            const padding = getRandomIntInclusive(10, 30);
+            const padding = getRandomIntInclusive(8, 32);
 
             newLink.prop('router/args/padding', padding);
+
             return newLink;
         }
     });
