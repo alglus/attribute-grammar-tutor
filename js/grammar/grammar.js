@@ -62,6 +62,10 @@ export class Grammar {
             }
         }
 
+        this.#mergeMissingAttributesAndSort();
+
+        this.#defineAttributeIndexesInDependenciesAndCountElements();
+
         this.#computeTerminals();
 
         this.#computeStrongAcyclicityIterations();
@@ -184,9 +188,6 @@ export class Grammar {
             // This way we parse as many attributes as possible, without aborting and can show more warnings to the user.
             this.#parseRightAttribute(lineNumber, equationHalves[1], attributeEquation, leftAttribute, productionRule, attributeNameAndIndexMatcher);
         }
-
-        this.#mergeMissingAttributesAndSort();
-        this.#defineAttributeIndexesInDependenciesAndCountElements();
     }
 
 
@@ -290,6 +291,14 @@ export class Grammar {
     }
 
 
+    /* A (non-)terminal can be present in different production rules. And in those production rules, it can be assigned
+     * different attributes. However, when drawing the local dependency graph, all attributes of a (non-)terminal
+     * must be drawn next to it, even if they were assigned in another production rule.
+     * So, once all production rules have been parsed, this function iterates through all (non-)terminals and
+     * adds any attributes, which might be missing.
+     *
+     * In order for these attributes to be in the same order next to all (non-)terminals, they are also sorted.
+     */
     #mergeMissingAttributesAndSort() {
 
         for (const productionRule of this.#productionRules) {
@@ -306,6 +315,15 @@ export class Grammar {
     }
 
 
+    /* When parsing the attribute equations, we save the name of the (non-)terminals and of the attributes
+     * at both ends of a dependency.
+     * But we cannot at that point know the index of the attributes, because in the previous function
+     * mergeMissingAttributesAndSort(), new attributes can still be added, and then they are all resorted.
+     * Therefore, just now can we go through all dependencies again and find out and save the attribute-indexes.
+     *
+     * Because we are iterating through all (non-)terminals and all attributes in each production rule anyway,
+     * we use this chance to count the number of elements (= number of nodes) per production rule.
+     */
     #defineAttributeIndexesInDependenciesAndCountElements() {
 
         for (let i = 0; i < this.#productionRules.length; i++) {
@@ -390,6 +408,10 @@ export class Grammar {
     }
 
 
+    /* The redecorated dependencies are stored in an array in each attribute object.
+     * Before starting a new iteration, the dependencies from the previous iteration
+     * need to be removed from that array, so that they do not interfere with the new iteration.
+     */
     #emptyRedecoratedDependenciesBeforeNewIteration(productionRule) {
 
         for (const symbol of productionRule.symbols) {
@@ -400,6 +422,7 @@ export class Grammar {
             }
         }
     }
+
 
     #redecorate(productionRule, iterationIndex) {
 
