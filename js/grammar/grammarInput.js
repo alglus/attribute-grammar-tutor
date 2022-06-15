@@ -22,7 +22,7 @@ import {Grammar} from "./grammar.js";
 
 
 export class GrammarInput {
-    #attributeGrammarsURL = '../../attribute_grammars.json';
+    #attributeGrammarsURL = '../attribute_grammars.json';
     #defaultGrammarTitle = 'TUM Compiler Construction I - Lecture slides example';
     #defaultGrammarProductionRules = [
         'S -> L : h[0] = h[1]; i[1] = j[1]; j[0] = j[1]; k[1] = h[1]; i[0] = 0; k[0] = 0',
