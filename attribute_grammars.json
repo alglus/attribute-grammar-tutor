@@ -1,0 +1,42 @@
+[
+  {
+    "title": "TUM Compiler Construction I - Lecture slides example",
+    "productionRules": [
+      "S -> L : h[0] = h[1]; i[1] = j[1]; j[0] = j[1]; k[1] = h[1]; i[0] = 0; k[0] = 0",
+      "L -> a : j[0] = k[0]; h[0] = 0; i[0] = 0",
+      "L -> b : h[0] = i[0]; j[0] = 0; k[0] = 0"
+    ]
+  },
+  {
+    "title": "TUM Compiler Construction I - Exam SS2016",
+    "productionRules": [
+      "R -> T R : x[0] = w[1]; x[2] = 2 * x[0]; z[1] = min(y[2], 1)",
+      "R -> R T : y[0] = min(y[1], 0); x[1] = y[2] + 1; x[2] = x[0]",
+      "R -> T   : y[0] = y[1]; x[1] = x[0]",
+      "T -> a   : y[0] = x[0] + 2; w[0] = z[0]"
+    ]
+  },
+  {
+    "title": "TUM Compiler Construction I - Flipped Classroom SS2022 example",
+    "productionRules": [
+      "S -> A B : a[1] = a[0]; b[2] = b[1]; c[1] = b[0]; a[2] = c[1]; b[0] = b[2]; c[0] = c[2]",
+      "S -> B A : c[0] = b[2]; b[1] = a[0]; c[2] = c[1]; c[1] = a[1]; b[2] = a[2]",
+      "A -> B A : b[0] = c[2]; c[2] = a[1]; b[1] = a[0]",
+      "B -> B A : c[2] = b[0]; c[0] = a[1]; b[1] = a[0]; a[0] = a[2]",
+      "A -> s   : a[0] = c[0]",
+      "B -> t"
+    ]
+  },
+  {
+    "title": "[WSH12] Übersetzerbau: Syntaktische und semantische Analyse - Beispiel 4.3.1",
+    "productionRules": [
+      "E -> E + T : tree[0] = Plus(tree[1], tree[3])",
+      "E -> T     : tree[0] = tree[1]",
+      "T -> T * F : tree[0] = Mult(tree[1], tree[3])",
+      "T -> F     : tree[0] = tree[1]",
+      "F -> const : tree[0] = Int(val[1])",
+      "F -> var   : tree[0] = Var(id[1])",
+      "F -> ( E ) : tree[0] = tree[2]"
+    ]
+  }
+]

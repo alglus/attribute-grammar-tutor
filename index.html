@@ -23,30 +23,42 @@
     </div>
 
     <!-- Header -->
-    <header class="mt-2">
-        <h1 class="float-start">Attribute Grammar Tutor</h1>
-        <button id="aboutBtn" type="button" class="btn btn-outline-secondary btn-sm float-end mt-3" title="About" data-bs-toggle="modal" data-bs-target="#about">
-            <svg class="bi bi-info-circle" width="16" height="16" role="img" aria-label="About">
-                <use xlink:href="#info-circle"/>
+    <header class="mt-2 d-flex">
+        <h1 class="m-0">Attribute Grammar Tutor</h1>
+        <button id="helpBtn" type="button" class="helpAboutButton btn btn-outline-secondary btn-sm mt-auto ms-auto" title="Help" data-bs-toggle="modal" data-bs-target="#help">
+            <svg class="bi bi-question-circle" width="18" height="18" role="img" aria-label="Help">
+                <use xlink:href="#question-circle"/>
             </svg>
         </button>
-        <button id="helpBtn" type="button" class="btn btn-outline-secondary btn-sm float-end mt-3" title="Help" data-bs-toggle="modal" data-bs-target="#help">
-            <svg class="bi bi-question-circle" width="16" height="16" role="img" aria-label="Help">
-                <use xlink:href="#question-circle"/>
+        <button id="aboutBtn" type="button" class="helpAboutButton btn btn-outline-secondary btn-sm mt-auto ms-2" title="About" data-bs-toggle="modal" data-bs-target="#about">
+            <svg class="bi bi-info-circle" width="18" height="18" role="img" aria-label="About">
+                <use xlink:href="#info-circle"/>
             </svg>
         </button>
     </header>
     <main>
 
         <!-- Grammar input -->
-        <div class="input-group pt-4 mb-2">
-            <span class="input-group-text">Attribute <br>Grammar</span>
-            <div id="grammarInputWrapper" class="form-control p-0"></div>
+        <div class="input-group pt-4 pb-2">
+            <div class="input-group-text noselect">Attribute <br>Grammar</div>
+            <div class="form-control p-0">
+                <div id="grammarTitle" class="d-flex noselect hide">
+                    <div id="grammarTitleComment" class="CodeMirror-linenumber">//</div>
+                    <div id="grammarTitleText">Grammar title</div>
+                </div>
+                <div id="grammarInputWrapper"></div>
+            </div>
         </div>
 
         <!-- Grammar buttons -->
-        <button type="button" id="applyGrammarButton" class="btn btn-primary me-2" title="Apply attribute grammar and generate exercises">Apply</button>
-        <button type="button" id="editGrammarButton" class="btn btn-secondary" title="Delete exercises and edit attribute grammar" disabled>Edit</button>
+        <div class="d-flex align-items-center">
+            <button type="button" id="applyGrammarButton" class="btn btn-primary me-2" title="Apply attribute grammar and generate exercises">Apply</button>
+            <button type="button" id="editGrammarButton" class="btn btn-secondary" title="Delete exercises and edit attribute grammar" disabled>Edit</button>
+            <div class="dropdown ms-auto">
+                <button id="grammarSelect" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Load attribute grammar</button>
+                <ul id="grammarSelectList" class="dropdown-menu dropdown-menu-end" aria-labelledby="grammarSelect"></ul>
+            </div>
+        </div>
 
         <!-- noscript warning -->
         <noscript>

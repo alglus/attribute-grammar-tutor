@@ -1,3 +1,9 @@
+:root {
+    --grammarTitleHeight: 0px;
+}
+
+
+/* Fonts */
 @font-face {
     /* Font author: Ryoichi Tsunekawa
        https://github.com/dharmatype/Sometype-Mono
@@ -17,6 +23,7 @@
 .greatVibes {
     font-family: greatVibes, cursive;
 }
+
 
 /* Bootstrap */
 .form-check {
@@ -38,7 +45,12 @@
     line-height: 1.5;
     font-size: 1rem;
     color: #212529;
-    border-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+    -moz-border-radius-topright: 0.25rem;
+    -webkit-border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    -moz-border-radius-bottomright: 0.25rem;
+    -webkit-border-bottom-right-radius: 0.25rem;
 }
 
 .disabledText {
@@ -66,8 +78,15 @@ noscript {
 
 
 /* Header */
-#aboutBtn {
-    margin-left: 10px;
+.helpAboutButton {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+
+.helpAboutButton > svg {
+    margin: auto;
 }
 
 
@@ -91,6 +110,41 @@ footer div {
 /* Grammar input */
 #grammarErrorMessages {
     display: none;
+}
+
+#grammarTitle {
+    height: var(--grammarTitleHeight);
+    line-height: var(--grammarTitleHeight);
+    border-top-right-radius: 0.25rem;
+    border-bottom: 1px solid #ddd;
+}
+
+#grammarTitleComment {
+    font-size: 1rem;
+    font-weight: 400;
+    min-width: 21px;
+    width: 21px;
+    padding: 0 3px 0 5px;
+    border-right: 1px solid #ddd;
+    background-color: #f7f7f7;
+}
+
+#grammarTitleText {
+    width: 100%;
+    padding-left: 4px;
+    color: #999;
+    background-color: #fdfdfd;
+    border-top-right-radius: 0.25rem;
+}
+
+#grammarInputWrapper {
+    height: calc(100% - var(--grammarTitleHeight));
+}
+
+#grammarSelect {
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    color: #212529;
 }
 
 
@@ -689,8 +743,22 @@ footer div {
 
 /* General */
 a[target="_blank"]:after {
+    /* Add 'open in new tab'-icon after all links, which open in new tab */
     content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
     margin: 0 3px 0 5px;
+}
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+.hide {
+    display: none !important;
 }
 
 /* JointJS */

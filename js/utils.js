@@ -69,6 +69,10 @@ export function getOrCreateArray(array) {
     return array || [];
 }
 
+export function arraysHaveDifferentLengths(array1, array2) {
+    return array1.length !== array2.length;
+}
+
 
 /* Sets */
 export function getLongestStringLengthInSet(set) {
