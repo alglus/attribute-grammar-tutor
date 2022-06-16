@@ -1,4 +1,4 @@
-import {DARK_GREY, ERROR_DARK_RED, LIGHT_GREY, PROJECTED_YELLOW, REDECORATED_GREEN} from "./attrsys.js";
+import {DARK_GREY, ERROR_DARK_RED, LIGHT_GREY} from "./attrsys.js";
 import {getRandomIntInclusive} from "../utils.js";
 
 export function defineAttrsysLinks() {
@@ -186,7 +186,7 @@ function defineRedecoratedLink(acyclicityLink) {
     return acyclicityLink.define('attrsys.RedecoratedLink', {
         attrs: {
             line: {
-                stroke: REDECORATED_GREEN,
+                stroke: '#46BB00',
             },
         },
     });
@@ -203,7 +203,7 @@ function defineProjectedLink(acyclicityLink) {
         router: {name: 'manhattan'},
         attrs: {
             line: {
-                stroke: PROJECTED_YELLOW,
+                stroke: '#FFBF00',
             },
         },
     });

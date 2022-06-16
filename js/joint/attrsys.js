@@ -22,8 +22,6 @@ export const ERROR_DARK_RED = '#d00';
 export const ERROR_LIGHT_RED = '#fcc';
 export const LIGHT_GREY = '#ccc';
 export const DARK_GREY = '#333';
-export const REDECORATED_GREEN = '#46BB00';
-export const PROJECTED_YELLOW = '#FFBF00';
 
 
 export const HIGHLIGHT_AREA = Object.freeze({default: 0, border: 1, label: 2, body: 3,});
