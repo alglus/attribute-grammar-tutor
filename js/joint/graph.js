@@ -1,6 +1,14 @@
 import {emptyArray} from '../utils.js';
 import {GRAPH_TYPE} from "./drawGraph.js";
-import {newSymbol, SYMBOL_HEIGHT, SYMBOL_WIDTH} from "./attrsys.js";
+import {
+    DARK_GREY,
+    LIGHT_GREY,
+    newSymbol,
+    PROJECTED_YELLOW,
+    REDECORATED_GREEN,
+    SYMBOL_HEIGHT,
+    SYMBOL_WIDTH
+} from "./attrsys.js";
 import {hideGraphCorrectIcon, resetErrors} from '../localDependency/exercise.js';
 
 
@@ -173,9 +181,18 @@ export class Graph {
             /* Highlight link */
             'link:mouseenter': function (linkView) {
                 linkView.model.prop('attrs/lineHighlight/stroke', '#009eec');
+                linkView.model.prop('attrs/line/targetMarker', {'fill': '#009eec', 'stroke': '#009eec'});
             },
             'link:mouseleave': function (linkView) {
                 linkView.model.prop('attrs/lineHighlight/stroke', 'transparent');
+
+                // Colour back the links, which are common to both graph types: SymbolLink and RegularAttributeLink.
+                // The recolouring of the remaining links will be done in the AcyclicityGraph.
+                if (linkView.model.get('type') === 'attrsys.SymbolLink') {
+                    linkView.model.prop('attrs/line/targetMarker', {'fill': LIGHT_GREY, 'stroke': LIGHT_GREY});
+                } else if (linkView.model.get('type') === 'attrsys.RegularAttributeLink') {
+                    linkView.model.prop('attrs/line/targetMarker', {'fill': DARK_GREY, 'stroke': DARK_GREY});
+                }
             },
         });
 
@@ -408,6 +425,13 @@ export class AcyclicityGraph extends Graph {
             },
             'link:mouseleave': function (linkView) {
                 linkView.removeTools();
+
+                // Change the end marker to original colour, after it has been highlighted on link:mouseenter (in the parent class).
+                if (linkView.model.get('type') === 'attrsys.RedecoratedLink') {
+                    linkView.model.prop('attrs/line/targetMarker', {'fill': REDECORATED_GREEN, 'stroke': REDECORATED_GREEN});
+                } else if (linkView.model.get('type') === 'attrsys.ProjectedLink') {
+                    linkView.model.prop('attrs/line/targetMarker', {'fill': PROJECTED_YELLOW, 'stroke': PROJECTED_YELLOW});
+                }
             },
 
 
