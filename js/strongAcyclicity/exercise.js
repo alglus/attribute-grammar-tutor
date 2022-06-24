@@ -100,7 +100,38 @@ function cloneNonterminalContainer(newNonterminalIndex) {
 }
 
 function setNonterminalTitle(nonterminal, nonterminalIndex) {
-    $(`.acyclicityNonterminalTitle[data-nonterminal=${nonterminalIndex}]`).html(nonterminal.name);
+
+    // With the font sometypeMono and size 18px, a maximum of 43 characters fit into the title bar vertically,
+    // before it starts getting larger, than the size of one production rule row.
+    const title = cropIfTooLong(nonterminal.name, 43);
+
+    const nonterminalTitleHTML = $(`.acyclicityNonterminalTitle[data-nonterminal=${nonterminalIndex}]`);
+
+    nonterminalTitleHTML.html(title);
+
+    // With the font sometypeMono and size 18px, only 4 characters fit into the 50px wide nonterminal title bar.
+    rotateTextIfTooLong(nonterminalTitleHTML, title, 4);
+}
+
+function cropIfTooLong(text, maxTextLength) {
+
+    if (text.length > maxTextLength) {
+        // Cut one character too many, so that the ellipsis can be appended to the end.
+        text = text.substring(0, maxTextLength - 1) + '…';
+    }
+
+    return text;
+}
+
+function rotateTextIfTooLong(textHTML, text, maxTextLength) {
+
+    if (text.length > maxTextLength) {
+
+        textHTML.css({
+            'writing-mode': 'vertical-rl',
+            'transform': 'rotate(180deg)'
+        });
+    }
 }
 
 function createProductionRuleContainers(nonterminal, nonterminalIndex) {
@@ -127,8 +158,23 @@ function cloneProductionRuleContainer(newProductionRuleIndex, nonterminalIndex) 
 }
 
 function setProductionRuleTitle(productionRule, productionRuleIndex, nonterminalIndex) {
-    $(`.acyclicityProductionRuleText[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}]`)
-        .html(productionRule.toString());
+
+    const productionRuleString = productionRule.toString();
+    const productionRuleTitleHTML = $(`.acyclicityProductionRuleText[data-nonterminal=${nonterminalIndex}][data-production=${productionRuleIndex}]`);
+
+    productionRuleTitleHTML.html(productionRule.toString());
+
+    alignLeftIfTextTooLong(productionRuleTitleHTML, productionRuleString, 42);
+}
+
+function alignLeftIfTextTooLong(textHTML, text, maxTextLength) {
+
+    // If a text is centered and has more than a maximum number of characters,
+    // the first and last characters flow out of the HTML element. So it becomes difficult to decipher the
+    // text based on its middle. Therefore, we align it left, so that at least the beginning is visible.
+    if (text.length > maxTextLength) {
+        textHTML.css('justify-content', 'left');
+    }
 }
 
 const questions = [
@@ -419,7 +465,7 @@ function scrollToFarRight(scrollSelector) {
  */
 function assignFunctionToCheckButton(grammar, iterationIndex) {
     const checkButton = $(`#iterationCheck_${iterationIndex}`);
-    checkButton.on('click',() => checkIteration(grammar, iterationIndex));
+    checkButton.on('click', () => checkIteration(grammar, iterationIndex));
 }
 
 function checkIteration(grammar, iterationIndex) {
