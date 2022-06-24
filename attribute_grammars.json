@@ -28,7 +28,7 @@
     ]
   },
   {
-    "title": "[WSH12] Übersetzerbau: Syntaktische und semantische Analyse - Beispiel 4.3.1",
+    "title": "[WSH13] Compiler Design: Syntactic and Semantic Analysis - Example 4.3.1",
     "productionRules": [
       "E -> E + T : tree[0] = Plus(tree[1], tree[3])",
       "E -> T     : tree[0] = tree[1]",
