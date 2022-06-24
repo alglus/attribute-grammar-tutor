@@ -198,13 +198,8 @@ export class GrammarInput {
     }
 
     #setProductionRules(productionRules) {
-        let grammarText = '';
 
-        for (let i = 0; i < productionRules.length; i++) {
-            grammarText += productionRules[i];
-
-            if (i < getLastArrayIndex(productionRules)) grammarText += '\n';
-        }
+        const grammarText = productionRules.join('\n');
 
         this.#codeMirrorInput.setValue(grammarText);
     }
@@ -227,6 +222,7 @@ export class GrammarInput {
         setGrammarTitle(this.#defaultGrammarTitle);
         showGrammarTitle();
         this.#setProductionRules(this.#defaultGrammarProductionRules);
+        this.#currentlyDisplayedGrammarIsLoadedGrammar = true;
     }
 }
 
