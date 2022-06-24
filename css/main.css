@@ -507,6 +507,12 @@ footer div {
 .acyclicityGraph {
     min-width: 400px;
     height: 300px;
+    border-top-left-radius: 0.25rem;
+    -moz-border-radius-topleft: 0.25rem;
+    -webkit-border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+    -moz-border-radius-topright: 0.25rem;
+    -webkit-border-top-right-radius: 0.25rem;
 }
 
 .acyclicityTransitiveRelationsContainer {
@@ -734,6 +740,10 @@ footer div {
 
 #help .col-sm-2 {
     min-width: 130px;
+}
+
+#help .col-sm-3 {
+    min-width: 215px;
 }
 
 #helpGreenEdge {
