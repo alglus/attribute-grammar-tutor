@@ -439,11 +439,21 @@ function waitForScrollToEndAndThenScrollIntoView(objectToScroll, scrollSelector)
         const lastElementOfSelector = $(scrollSelector).last();
         const currentX = lastElementOfSelector.scrollLeft();
 
-        if (currentX === lastX.val) {
+        if (scrollingHasFinished()) {
             scrollTo(objectToScroll);
             clearInterval(waitInterval);
         } else {
             lastX.val = currentX;
+        }
+
+        function scrollingHasFinished() {
+            return currentX === lastX.val
+
+                // Wait for the exercise to uncollapse and only then scroll to the new iteration
+                // (relevant, when the exercise is created and was collapsed before).
+                // This is necessary to fix a bug in Opera and Chrome. The scrolling-into-view is aborted,
+                // because it gets overruled by the uncollapsing of the exercise.
+                && !$('#acyclicity-collapse').hasClass('collapsing');
         }
     }
 }
