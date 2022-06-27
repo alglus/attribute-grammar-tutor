@@ -191,7 +191,7 @@ function defineNodePosition(symbolIndex, productionRule, paper, onlySyntaxTree) 
         };
     }
 
-    const childrenY = paperHeight - PAPER_MARGIN_Y - getMaxContainerHeight(productionRuleSymbols);
+    const childrenY = getChildrenY(paper, productionRuleSymbols, onlySyntaxTree);
 
 
     // Only one child.
@@ -233,6 +233,20 @@ function placeInTheCentreX(symbolIndex, symbols, paper, onlySyntaxTree) {
     }
 
     return centralPositionX;
+}
+
+function getChildrenY(paper, productionRuleSymbols, onlySyntaxTree) {
+
+    let childrenY = paper.options.height - PAPER_MARGIN_Y;
+
+    if (onlySyntaxTree) {
+        childrenY -= SYMBOL_HEIGHT;
+
+    } else {
+        childrenY -= getMaxContainerHeight(productionRuleSymbols);
+    }
+
+    return childrenY;
 }
 
 function getTotalChildrenWidth(symbols, onlySyntaxTree) {
