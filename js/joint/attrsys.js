@@ -12,6 +12,7 @@ export let ATTRIBUTE_HEIGHT;
 export let PAPER_MARGIN_X;
 export let PAPER_MARGIN_Y;
 export let SPACING_BETWEEN_CONTAINERS;
+export let MAX_ALL_ATTRIBUTES_WIDTH;
 
 export const SPACING_BETWEEN_ATTRIBUTES_X = 10;
 export const SPACING_BETWEEN_ATTRIBUTES_Y = 15;
@@ -67,6 +68,10 @@ function initialiseSizeConstants(grammar) {
     PAPER_MARGIN_X = 1.5 * SYMBOL_WIDTH;
     PAPER_MARGIN_Y = 1.5 * SYMBOL_HEIGHT;
     SPACING_BETWEEN_CONTAINERS = 1.5 * SYMBOL_WIDTH;
+
+    MAX_ALL_ATTRIBUTES_WIDTH =
+        MAX_ATTRIBUTES_IN_ONE_ROW * ATTRIBUTE_WIDTH
+        + (MAX_ATTRIBUTES_IN_ONE_ROW - 1) * SPACING_BETWEEN_ATTRIBUTES_X;
 }
 
 function setWidthBasedOnLongestName(nameLength, fontWidth, sidePadding) {

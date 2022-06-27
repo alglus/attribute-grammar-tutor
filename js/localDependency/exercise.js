@@ -180,7 +180,7 @@ function setFunctionForDrawTreeButton(productionRuleIndex, grammar) {
 
     drawTreeButton.on('click',function () {
         clearGraph(productionRuleIndex);
-        drawSyntaxTree(localDependencyGraphs[productionRuleIndex], grammar.productionRules[productionRuleIndex], GRAPH_TYPE.localDependency);
+        drawSyntaxTree(localDependencyGraphs[productionRuleIndex], grammar.productionRules[productionRuleIndex], GRAPH_TYPE.localDependency, true);
         recenterIfGraphOutOfFrame(localDependencyGraphs[productionRuleIndex]);
     });
 }
@@ -192,7 +192,7 @@ function drawAllSyntaxTrees(grammar) {
         const graph = localDependencyGraphs[i];
         const productionRule = grammar.productionRules[i];
 
-        drawSyntaxTree(graph, productionRule, GRAPH_TYPE.localDependency);
+        drawSyntaxTree(graph, productionRule, GRAPH_TYPE.localDependency, true);
         recenterIfGraphOutOfFrame(graph);
     }
 }
